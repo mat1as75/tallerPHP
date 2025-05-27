@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/ProductoController.php';
+include_once __DIR__ . '/../src/repositories/ProductoRepository.php';
 
 $productoController = new ProductoController();
 

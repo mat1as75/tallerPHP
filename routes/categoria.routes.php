@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/CategoriaController.php';
+include_once __DIR__ . '/../src/repositories/CategoriaRepository.php';
 
 $categoriaController = new CategoriaController();
 

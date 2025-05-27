@@ -1,5 +1,5 @@
 <?php
-require_once './config/database.php';
+include_once __DIR__ . '/../config/database.php';
 
 class ProductoPedido
 {
@@ -11,20 +11,20 @@ class ProductoPedido
         $this->conn = $db->connect();
     }
 
-    public function getProductosPedidos()
-    {
-        $sql = "SELECT * FROM producto_pedido";
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // public function getProductosPedidos()
+    // {
+    //     $sql = "SELECT * FROM producto_pedido";
+    //     $stmt = $this->conn->query($sql);
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
 
-    public function getProductoPedidoByIdPedido($id)
-    {
-        $sql = "SELECT * FROM producto_pedido WHERE id_pedido = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    // public function getProductoPedidoByIdPedido($id)
+    // {
+    //     $sql = "SELECT * FROM producto_pedido WHERE id_pedido = ?";
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->execute([$id]);
+    //     return $stmt->fetch(PDO::FETCH_ASSOC);
+    // }
 
     public function create($data)
     {

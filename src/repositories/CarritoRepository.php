@@ -1,5 +1,5 @@
 <?php
-require_once './models/Carrito.php';
+include_once __DIR__ . '/../../src/models/Carrito.php';
 
 class CarritoController
 {

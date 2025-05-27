@@ -1,5 +1,5 @@
 <?php
-require_once './models/ProductoPedido.php';
+include_once __DIR__ . '/../../src/models/ProductoPedido.php';
 
 class ProductoPedidoController
 {
@@ -10,15 +10,15 @@ class ProductoPedidoController
         $this->productoPedido = new ProductoPedido();
     }
 
-    public function getProductosPedidos()
-    {
-        echo json_encode($this->productoPedido->getProductosPedidos());
-    }
+    // public function getProductosPedidos()
+    // {
+    //     echo json_encode($this->productoPedido->getProductosPedidos());
+    // }
 
-    public function getProductoPedidoById($id)
-    {
-        echo json_encode($this->productoPedido->getProductoPedidoByIdPedido($id));
-    }
+    // public function getProductoPedidoById($id)
+    // {
+    //     echo json_encode($this->productoPedido->getProductoPedidoByIdPedido($id));
+    // }
 
     public function create()
     {

@@ -1,5 +1,5 @@
 <?php
-require_once './models/Categoria.php';
+include_once __DIR__ . '/../../src/models/Categoria.php';
 
 class CategoriaController
 {
@@ -7,12 +7,12 @@ class CategoriaController
 
     public function __construct()
     {
-        $this->usuario = new Usuario();
+        $this->categoria = new Categoria();
     }
 
     public function getCategorias()
     {
-        echo json_encode($this->categoria->getUsuarios());
+        echo json_encode($this->categoria->getCategorias());
     }
 
     public function getCategoriaById($id)

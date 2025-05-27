@@ -1,5 +1,5 @@
 <?php
-require_once './models/Producto.php';
+include_once __DIR__ . '/../../src/models/Producto.php';
 
 class ProductoController
 {

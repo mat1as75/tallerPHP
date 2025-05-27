@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/ProductoPedidoController.php';
+include_once __DIR__ . '/../src/repositories/ProductoPedidoRepository.php';
 
 $productoPedidoController = new ProductoPedidoController();
 
@@ -17,7 +17,7 @@ if (preg_match('/^\/productosPedidos(\/\d+)?$/', $uri)) {
 
     switch ($method) {
         case 'GET':
-            $id ? $productoPedidoController->getProductoPedidoById($id) : $productoPedidoController->getProductosPedidos();
+            //$id ? $productoPedidoController->getProductoPedidoById($id) : $productoPedidoController->getProductosPedidos();
             break;
         case 'POST':
             $productoPedidoController->create();

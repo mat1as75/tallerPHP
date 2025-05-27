@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/ValoracionController.php';
+include_once __DIR__ . '/../src/repositories/ValoracionRepository.php';
 
 $valoracionController = new ValoracionController();
 

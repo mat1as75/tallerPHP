@@ -1,5 +1,5 @@
 <?php
-require_once './config/database.php';
+include_once __DIR__ . '/../config/database.php';
 
 class Producto
 {

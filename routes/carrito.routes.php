@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/CarritoController.php';
+include_once __DIR__ . '/../src/repositories/CarritoRepository.php';
 
 $carritoController = new CarritoController();
 

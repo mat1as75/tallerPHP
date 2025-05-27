@@ -1,5 +1,5 @@
 <?php
-require_once './config/database.php';
+include_once __DIR__ . '/../config/database.php';
 
 class Usuario
 {
@@ -13,7 +13,7 @@ class Usuario
 
     public function getUsuarios()
     {
-        $sql = "SELECT * FROM usuario";
+        $sql = "SELECT * FROM Usuario";
         $result = mysqli_query($this->conn, $sql);
         $usuarios = [];
 
@@ -26,7 +26,7 @@ class Usuario
 
     public function getUsuarioById($id)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM usuario WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM Usuario WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();

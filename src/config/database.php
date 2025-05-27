@@ -1,10 +1,10 @@
 <?php
 class Database
 {
-    private $host = "localhost";
-    private $db_name = "webpagedb";
-    private $username = "root";
-    private $password = "";
+    private $host = "127.0.0.1";
+    private $db_name = "tallerphpdb";
+    private $username = "admin";
+    private $password = "AdminPass123";
     private $conn;
 
     public function connect()

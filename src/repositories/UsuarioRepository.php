@@ -1,14 +1,16 @@
 <?php
-require_once './models/Usuario.php';
-require_once './config/database.php';
+include_once __DIR__ . '/../../src/models/Usuario.php';
+include_once __DIR__ . '/../../src/config/database.php';
 
 class UsuarioController
 {
     private $usuario;
+    private $conn;
 
     public function __construct()
     {
         $this->usuario = new Usuario();
+        $this->conn = (new Database())->connect();
     }
 
     public function getUsuarios()

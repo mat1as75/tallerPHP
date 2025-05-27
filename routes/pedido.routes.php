@@ -1,5 +1,5 @@
 <?php
-require_once './controllers/PedidoController.php';
+include_once __DIR__ . '/../src/repositories/PedidoRepository.php';
 
 $pedidoController = new PedidoController();
 
