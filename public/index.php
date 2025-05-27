@@ -22,12 +22,12 @@ $matched = false;
 // Rutas de cada recurso
 $routes = [
     '../routes/usuario.routes.php',
-    '../src/routes/producto.routes.php',
-    '../src/routes/pedido.routes.php',
-    '../src/routes/producto_pedido.routes.php',
-    '../src/routes/categoria.routes.php',
-    '../src/routes/valoracion.routes.php',
-    '../src/routes/carrito.routes.php',
+    '../routes/producto.routes.php',
+    '../routes/pedido.routes.php',
+    '../routes/producto_pedido.routes.php',
+    '../routes/categoria.routes.php',
+    '../routes/valoracion.routes.php',
+    '../routes/carrito.routes.php',
 ];
 
 // Iterar sobre las rutas hasta que una maneje la peticion
