@@ -1,41 +1,76 @@
 <?php
-include_once __DIR__ . '/../../src/models/ProductoPedido.php';
+include_once __DIR__ . '/../config/database.php';
 
-class ProductoPedidoController
+class ProductoPedidoRepository
 {
-    private $productoPedido;
+    private $conn;
 
     public function __construct()
     {
-        $this->productoPedido = new ProductoPedido();
+        $db = new Database();
+        $this->conn = $db->connect();
     }
 
     // public function getProductosPedidos()
     // {
-    //     echo json_encode($this->productoPedido->getProductosPedidos());
+    //     $sql = "SELECT * FROM producto_pedido";
+    //     $stmt = $this->conn->query($sql);
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
     // }
 
-    // public function getProductoPedidoById($id)
+    // public function getProductoPedidoByIdPedido($id)
     // {
-    //     echo json_encode($this->productoPedido->getProductoPedidoByIdPedido($id));
+    //     $sql = "SELECT * FROM producto_pedido WHERE id_pedido = ?";
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->execute([$id]);
+    //     return $stmt->fetch(PDO::FETCH_ASSOC);
     // }
 
-    public function create()
+    public function create($data)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-        echo json_encode($this->productoPedido->create($data));
+        $sql = "INSERT INTO producto_pedido (
+            id_producto, 
+            cantidad, 
+            precio, 
+            ) VALUES (?, ?, ?)
+        ";
+        $stmt = $this->conn->prepare(query: $sql);
+        $stmt->execute(
+            [
+                $data['id_producto'],
+                $data['cantidad'],
+                $data['precio']
+            ]
+        );
+        return ['mensaje' => 'ProductoPedido creado'];
     }
 
-    public function update($id)
+    public function update($id, $data)
     {
-        $data = json_decode(file_get_contents("php://input"), true);
-        echo json_encode($this->productoPedido->update($id, $data));
+        $sql = "UPDATE producto_pedido SET 
+            id_producto = ?, 
+            cantidad = ?, 
+            precio = ?, 
+            WHERE id_pedido = ?
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(
+            [
+                $data['id_producto'],
+                $data['cantidad'],
+                $data['precio'],
+                $id
+            ]
+        );
+        return ['mensaje' => 'ProductoPedido actualizado'];
     }
 
     public function delete($id)
     {
-        echo json_encode($this->productoPedido->delete($id));
+        $sql = "DELETE FROM producto_pedido WHERE id_pedido = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$id]);
+        return ['mensaje' => 'ProductoPedido eliminado'];
     }
 }
-
 ?>

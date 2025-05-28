@@ -1,109 +1,68 @@
 <?php
-include_once __DIR__ . '/../../src/models/Usuario.php';
-include_once __DIR__ . '/../../src/config/database.php';
+include_once __DIR__ . '/../config/database.php';
 
-class UsuarioController
+class UsuarioRepository
 {
-    private $usuario;
     private $conn;
 
     public function __construct()
     {
-        $this->usuario = new Usuario();
-        $this->conn = (new Database())->connect();
+        $db = new Database();
+        $this->conn = $db->connect();
     }
 
     public function getUsuarios()
     {
-        $usuarios = $this->usuario->getUsuarios();
-        echo json_encode($usuarios);
+        $sql = "SELECT * FROM Usuario";
+        $result = mysqli_query($this->conn, $sql);
+        $usuarios = [];
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $usuarios[] = $row;
+        }
+
+        return $usuarios;
     }
 
     public function getUsuarioById($id)
     {
-        $usuario = $this->usuario->getUsuarioById($id);
-        if ($usuario) {
-            echo json_encode($usuario);
-        } else {
-            http_response_code(404);
-            echo json_encode(["mensaje" => "Usuario no encontrado"]);
-        }
+        $stmt = $this->conn->prepare("SELECT * FROM Usuario WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
-    public function create()
+    public function create($email, $password, $nombre, $apellido)
     {
-        $input = json_decode(file_get_contents("php://input"), true);
-
-        if (!isset($input['nombre'], $input['email'], $input['password'])) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Faltan datos requeridos"]);
-            return;
-        }
-
-        $email = trim($input['email']);
-        $password = trim($input['password']);
-        $nombre = trim($input['nombre']);
-        $apellido = trim($input['apellido']);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Email no válido"]);
-            return;
-        }
-
-        $success = $this->usuario->create($email, $password, $nombre, $apellido);
-
-        if ($success) {
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Usuario creado con éxito"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["mensaje" => "Error al crear el usuario"]);
-        }
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->conn->prepare("INSERT INTO usuario (
+            email, 
+            contrasena, 
+            nombre, 
+            apellido
+        ) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sss", $email, $hashed, $nombre, $apellido);
+        return $stmt->execute();
     }
 
-    public function update($id)
+    public function update($email, $password, $nombre, $apellido)
     {
-        $input = json_decode(file_get_contents("php://input"), true);
-
-        if (!isset($input['nombre'], $input['email'], $input['password'])) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Faltan datos requeridos"]);
-            return;
-        }
-
-        $email = trim($input['email']);
-        $password = trim($input['password']);
-        $nombre = trim($input['nombre']);
-        $apellido = trim($input['apellido']);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Email no válido"]);
-            return;
-        }
-
-        $success = $this->usuario->update($email, $password, $nombre, $apellido);
-
-        if ($success) {
-            http_response_code(200);
-            echo json_encode(["mensaje" => "Usuario actualizado con éxito"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["mensaje" => "Error al actualizar el usuario"]);
-        }
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->conn->prepare("UPDATE usuario SET  
+            contrasena = ?, 
+            nombre = ?, 
+            apellido = ? 
+            WHERE email = ?");
+        $stmt->bind_param("ssi", $hashed, $nombre, $apellido, $email);
+        return $stmt->execute();
     }
 
     public function delete($email)
     {
-        $success = $this->usuario->delete($email);
-
-        if ($success) {
-            echo json_encode(["mensaje" => "Usuario eliminado con éxito"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["mensaje" => "Error al eliminar el usuario"]);
-        }
+        $stmt = $this->conn->prepare("UPDATE usuario SET activo = 0 WHERE email = ?");
+        $stmt->bind_param("i", $email);
+        return $stmt->execute();
     }
 }
 ?>
