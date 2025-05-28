@@ -45,13 +45,13 @@ class PedidoController
     public function updateStatus($id)
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        $status = $data['estado'] ?? null;
+        $status = $data['Estado'] ?? null;
         if (!$status) {
             http_response_code(400);
             echo json_encode(["mensaje" => "Estado es requerido"]);
             return;
         }
-        if (!in_array($status, ['pendiente', 'enviado', 'entregado', 'cancelado'])) {
+        if (!in_array($status, ['pendiente', 'pago', 'entregado', 'cancelado'])) {
             http_response_code(400);
             echo json_encode(["mensaje" => "Estado inválido"]);
             return;

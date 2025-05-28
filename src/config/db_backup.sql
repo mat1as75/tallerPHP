@@ -222,14 +222,14 @@ CREATE TABLE `Pedido` (
   `ID_Cliente` int(11) DEFAULT NULL,
   `ID_DatosEnvio` int(11) DEFAULT NULL,
   `Total` decimal(10,2) DEFAULT NULL,
-  `Estado` enum('pendiente','procesado','enviado','entregado','cancelado') DEFAULT NULL,
+  `Estado` enum('pendiente','pago','entregado','cancelado') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   KEY `ID_Cliente` (`ID_Cliente`),
   KEY `ID_DatosEnvio` (`ID_DatosEnvio`),
   CONSTRAINT `Pedido_ibfk_1` FOREIGN KEY (`ID_Cliente`) REFERENCES `Usuario` (`ID`),
   CONSTRAINT `Pedido_ibfk_2` FOREIGN KEY (`ID_DatosEnvio`) REFERENCES `DatosEnvio` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +248,8 @@ INSERT INTO `Pedido` VALUES
 (7,6,7,1529.91,'pendiente','2025-05-19 18:59:40'),
 (8,9,8,2126.44,'pendiente','2025-05-19 18:59:40'),
 (9,3,9,1536.95,'pendiente','2025-05-19 18:59:40'),
-(10,6,10,660.43,'pendiente','2025-05-19 18:59:40');
+(10,6,10,660.43,'pendiente','2025-05-19 18:59:40'),
+(11,9,1,24.00,'pendiente','2025-05-28 19:19:26');
 /*!40000 ALTER TABLE `Pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -434,4 +435,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-27 14:29:10
+-- Dump completed on 2025-05-28 19:30:16
