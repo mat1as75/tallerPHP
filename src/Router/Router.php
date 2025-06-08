@@ -10,9 +10,21 @@ class Router
     public function __construct($uri, $method)
     {
         $path = parse_url($uri, PHP_URL_PATH);
+
+        // Request desde Deployment
+        if (str_contains($path, 'tallerPHP'))
+            $path = str_replace('/tallerPHP', '', $path);
+
+        echo "Ruta: " . $path . "\n";
         $clean = str_replace('/index.php', '', $path);
-        $clean = str_replace('/php/tallerPHP/public', '', $clean); // Ajusta según tu estructura
-        $this->uri = $clean;
+        echo "Ruta limpia: " . $clean . "\n";
+        $parts = explode('/', $clean);
+        $beforePattern = '/' . $parts[1] . '/' . $parts[2]; // Ajusta según tu estructura
+        echo "Antes del patrón: " . $beforePattern . "\n";
+        $pattern = str_replace($beforePattern, '', $clean); // 
+        echo "Pattern: " . $pattern . "\n";
+        //$clean = str_replace('/php/tallerPHP/public', '', $clean); // Ajusta según tu estructura
+        $this->uri = $pattern;
         $this->method = $method;
     }
 

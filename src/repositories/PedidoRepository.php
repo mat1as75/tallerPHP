@@ -1,14 +1,25 @@
 <?php
 include_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/ProductoRepository.php';
+require_once __DIR__ . '/DatosEnvioRepository.php';
 
 class PedidoRepository
 {
     private $conn;
 
+    private $productoRepository;
+
+    private $productoPedidoRepository;
+
+    private $datosEnvioRepository;
+
     public function __construct()
     {
         $db = new Database();
         $this->conn = $db->connect();
+        $this->productoRepository = new ProductoRepository();
+        $this->productoPedidoRepository = new ProductoPedidoRepository();
+        $this->datosEnvioRepository = new DatosEnvioRepository();
     }
 
     // Obtener todos los pedidos
@@ -48,23 +59,21 @@ class PedidoRepository
     }
 
     // Crear un nuevo pedido
-    public function create($id_cliente, $id_datosEnvio, $total, $estado)
+    public function create($data)
     {
-        if ($this->checkClientePedido($id_cliente) === false) {
-            return ['error' => 'Cliente no encontrado'];
-        }
-        if ($this->checkDatosEnvioPedido($id_datosEnvio) === false) {
-            return ['error' => 'Datos de envío no encontrados'];
-        }
+        $res = $this->verifyData($data);
+        if (!isset($res['error'])) {
+            $stmt = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("iids", $id_cliente, $id_datosEnvio, $total, $estado);
+            $stmt->execute();
 
-        $stmt = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("iids", $id_cliente, $id_datosEnvio, $total, $estado);
-        $stmt->execute();
-
-        if ($stmt->error)
-            return ['error' => 'Error al crear el pedido: ' . $stmt->error];
-        $stmt->close();
-        return ['mensaje' => 'Pedido creado'];
+            if ($stmt->error)
+                return ['error' => 'Error al crear el pedido: ' . $stmt->error];
+            $stmt->close();
+            return ['mensaje' => 'Pedido creado'];
+        } else {
+            return $res;
+        }
     }
 
     // Actualizar el estado de un pedido
@@ -106,17 +115,6 @@ class PedidoRepository
         return $result->num_rows > 0;
     }
 
-    // Checkear si los datos de envio existen
-    public function checkDatosEnvioPedido($id_datosEnvio)
-    {
-        $sql = "SELECT ID FROM DatosEnvio WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id_datosEnvio);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
-    }
-
     // Checkear si el pedido ya fue entregado
     public function checkPedidoEntregado($id)
     {
@@ -130,6 +128,56 @@ class PedidoRepository
             return $pedido['Estado'] === 'entregado';
         }
         return false;
+    }
+
+    public function checkPedidoProducto($id_producto)
+    {
+        return $this->productoRepository->getProductoById($id_producto) ? true : false;
+    }
+
+    public function verifyData($data)
+    {
+        // Obtención de datos del Pedido
+        $id_cliente = $data['ID_Cliente'] ?? null;
+        $total = $data['Total'] ?? 0;
+        $estado = $data['Estado'] ?? 'pendiente';
+
+        // Datos de envio
+        $datosEnvio = $data['datosEnvio'] ?? null;
+        if ($datosEnvio) {
+            $telefono = $datosEnvio['telefonoCliente'] ?? null;
+            $direccion = $datosEnvio['direccionCliente'] ?? null;
+            $deparatamento = $datosEnvio['departamentoCliente'] ?? null;
+            $ciudad = $datosEnvio['ciudadCliente'] ?? null;
+
+            $this->datosEnvioRepository->create($telefono, $direccion, $deparatamento, $ciudad);
+        } else {
+            return ['error' => 'Datos de envío no proporcionados'];
+        }
+
+        // Verifico existencia de Cliente
+        if ($this->checkClientePedido($id_cliente) === false) {
+            return ['error' => 'Cliente no encontrado'];
+        }
+
+        // Verifico existencia de Productos
+        $productos = $data['productos'] ?? [];
+        if (!empty($productos)) {
+            foreach ($productos as $producto) {
+                if (!$this->checkPedidoProducto($producto['id_producto'])) {
+                    return ['error' => 'Producto inválido en el pedido'];
+                } else {
+                    // $this->productoPedidoRepository->create(
+                    //     $data['ID_Pedido'],
+                    //     $producto['id_producto'],
+                    //     $producto['cantidad'] ?? 1,
+                    //     $producto['precio'] ?? 0
+                    // );
+                }
+            }
+        } else {
+            return ['error' => 'No se han agregado productos al pedido'];
+        }
     }
 }
 ?>

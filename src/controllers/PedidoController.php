@@ -28,18 +28,14 @@ class PedidoController
     public function create()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        $id_cliente = $data['ID_Cliente'] ?? null;
-        $id_datosEnvio = $data['ID_DatosEnvio'] ?? null;
-        $total = $data['Total'] ?? 0;
-        $estado = $data['Estado'] ?? 'pendiente';
 
-        if (!$id_cliente || !$id_datosEnvio) {
+        if (!$data['ID_Cliente']) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "ID de cliente y datos de envío son requeridos"]);
+            echo json_encode(["mensaje" => "ID de cliente es requerido"]);
             return;
         }
 
-        echo json_encode($this->pedido->create($id_cliente, $id_datosEnvio, $total, $estado));
+        echo json_encode($this->pedido->create($data));
     }
 
     public function updateStatus($id)

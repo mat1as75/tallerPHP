@@ -13,17 +13,24 @@ class ProductoRepository
 
     public function getProductos()
     {
-        $sql = "SELECT * FROM producto";
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM Producto";
+        $result = mysqli_query($this->conn, $sql);
+        $productos = [];
+        while ($row = $result->fetch_assoc()) {
+            $productos[] = $row;
+        }
+        return $productos;
     }
 
     public function getProductoById($id)
     {
-        $sql = "SELECT * FROM producto WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM Producto WHERE id = $id";
+        $result = mysqli_query($this->conn, $sql);
+        $pedidos = [];
+        while ($row = $result->fetch_assoc()) {
+            $pedidos[] = $row;
+        }
+        return $pedidos;
     }
 
     public function create($data)

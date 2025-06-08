@@ -11,66 +11,35 @@ class ProductoPedidoRepository
         $this->conn = $db->connect();
     }
 
-    // public function getProductosPedidos()
-    // {
-    //     $sql = "SELECT * FROM producto_pedido";
-    //     $stmt = $this->conn->query($sql);
-    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    // }
-
-    // public function getProductoPedidoByIdPedido($id)
-    // {
-    //     $sql = "SELECT * FROM producto_pedido WHERE id_pedido = ?";
-    //     $stmt = $this->conn->prepare($sql);
-    //     $stmt->execute([$id]);
-    //     return $stmt->fetch(PDO::FETCH_ASSOC);
-    // }
-
-    public function create($data)
+    public function getProductoPedidoByIdPedido($id_pedido)
     {
-        $sql = "INSERT INTO producto_pedido (
-            id_producto, 
-            cantidad, 
-            precio, 
-            ) VALUES (?, ?, ?)
-        ";
-        $stmt = $this->conn->prepare(query: $sql);
-        $stmt->execute(
-            [
-                $data['id_producto'],
-                $data['cantidad'],
-                $data['precio']
-            ]
-        );
-        return ['mensaje' => 'ProductoPedido creado'];
+        $sql = "SELECT * FROM Producto_Pedido WHERE ID_Pedido = $id_pedido";
+        $result = mysqli_query($this->conn, $sql);
+        $productosPedidos = [];
+        while ($row = $result->fetch_assoc()) {
+            $productosPedidos[] = $row;
+        }
+
+        return $productosPedidos;
     }
 
-    public function update($id, $data)
+    public function create($id_pedido, $id_producto, $cantidad, $precio)
     {
-        $sql = "UPDATE producto_pedido SET 
-            id_producto = ?, 
-            cantidad = ?, 
-            precio = ?, 
-            WHERE id_pedido = ?
-        ";
+        if ($this->checkPedidoProducto($id_pedido, $id_producto)) {
+            return ['error' => 'El producto ya está agregado al pedido'];
+        }
+        $sql = "INSERT INTO Producto_Pedido (ID_Pedido, ID_Producto, Cantidad, Precio) VALUES (?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(
-            [
-                $data['id_producto'],
-                $data['cantidad'],
-                $data['precio'],
-                $id
-            ]
-        );
-        return ['mensaje' => 'ProductoPedido actualizado'];
+        $stmt->execute([$id_pedido, $id_producto, $cantidad, $precio]);
+        return ['mensaje' => 'Producto ' . $id_producto . ' agregado a Pedido ' . $id_pedido];
     }
 
-    public function delete($id)
+    public function checkPedidoProducto($id_pedido, $id_producto)
     {
-        $sql = "DELETE FROM producto_pedido WHERE id_pedido = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id]);
-        return ['mensaje' => 'ProductoPedido eliminado'];
+        $sql = "SELECT * FROM Producto_Pedido WHERE ID_Pedido = $id_pedido AND ID_Producto = $id_producto";
+        $result = mysqli_query($this->conn, $sql);
+        return mysqli_num_rows($result) > 0;
     }
+
 }
 ?>

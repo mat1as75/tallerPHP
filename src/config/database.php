@@ -1,11 +1,28 @@
 <?php
 class Database
 {
-    private $host = "127.0.0.1";
-    private $db_name = "tallerphpdb";
-    private $username = "admin";
-    private $password = "AdminPass123";
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
+
+    public function __construct()
+    {
+        if ($_SERVER['SERVER_NAME'] === 'localhost') {
+            // Credenciales para entorno local
+            $this->host = "127.0.0.1";
+            $this->db_name = "tallerphpdb";
+            $this->username = "admin";
+        } else {
+            // Credenciales para entorno de producción
+            $this->host = "localhost";
+            $this->db_name = "hphp_equipo2";
+            $this->username = "hphp_equipo2";
+        }
+        $this->password = "AdminPass123";
+
+    }
 
     public function connect()
     {
