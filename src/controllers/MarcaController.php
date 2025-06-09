@@ -10,6 +10,17 @@ class MarcaController
         $this->marca = new MarcaRepository();
     }
 
+    public function getMarcas()
+    {
+        $marcas = $this->marca->getMarcas();
+        if (empty($marcas)) {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "No se encontraron marcas"]);
+            return;
+        }
+        echo json_encode($marcas);
+    }
+
     public function create()
     {
         $data = json_decode(file_get_contents("php://input"), true);

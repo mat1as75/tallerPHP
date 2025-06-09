@@ -11,6 +11,17 @@ class MarcaRepository
         $this->conn = $db->connect();
     }
 
+    public function getMarcas()
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM Marca");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $marcas = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        return $marcas;
+    }
+
     public function create($nombre)
     {
         $stmt = $this->conn->prepare("INSERT INTO Marca (Nombre) VALUES (?)");
