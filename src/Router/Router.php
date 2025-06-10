@@ -15,14 +15,14 @@ class Router
         if (str_contains($path, 'tallerPHP'))
             $path = str_replace('/tallerPHP', '', $path);
 
-        echo "Ruta: " . $path . "\n";
+        //echo "Ruta: " . $path . "\n";
         $clean = str_replace('/index.php', '', $path);
-        echo "Ruta limpia: " . $clean . "\n";
+        //echo "Ruta limpia: " . $clean . "\n";
         $parts = explode('/', $clean);
         $beforePattern = '/' . $parts[1] . '/' . $parts[2]; // Ajusta según tu estructura
-        echo "Antes del patrón: " . $beforePattern . "\n";
+        //echo "Antes del patrón: " . $beforePattern . "\n";
         $pattern = str_replace($beforePattern, '', $clean); // 
-        echo "Pattern: " . $pattern . "\n";
+        //echo "Pattern: " . $pattern . "\n";
         //$clean = str_replace('/php/tallerPHP/public', '', $clean); // Ajusta según tu estructura
         $this->uri = $pattern;
         $this->method = $method;
