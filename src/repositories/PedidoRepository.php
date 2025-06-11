@@ -62,17 +62,63 @@ class PedidoRepository
     public function create($data)
     {
         $res = $this->verifyData($data);
-        if (!isset($res['error'])) {
-            $stmt = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("iids", $id_cliente, $id_datosEnvio, $total, $estado);
-            $stmt->execute();
-
-            if ($stmt->error)
-                return ['error' => 'Error al crear el pedido: ' . $stmt->error];
-            $stmt->close();
-            return ['mensaje' => 'Pedido creado'];
-        } else {
+        if (isset($res['error'])) {
             return $res;
+        }
+
+        // Extraer datos principales
+        $id_cliente = $data['ID_Cliente'];
+        $total = $data['Total'];
+        $estado = $data['Estado'];
+        $productos = $data['productos'];
+        $datosEnvio = $data['datosEnvio'];
+
+        $this->conn->begin_transaction();
+
+        try {
+            // Insertar en DatosEnvio
+            $stmtEnvio = $this->conn->prepare("INSERT INTO DatosEnvio (TelefonoCliente, DireccionCliente, DepartamentoCliente, CiudadCliente) VALUES (?, ?, ?, ?)");
+            $stmtEnvio->bind_param("ssss", $datosEnvio['telefonoCliente'], $datosEnvio['direccionCliente'], $datosEnvio['departamentoCliente'], $datosEnvio['ciudadCliente']);
+            $stmtEnvio->execute();
+            if ($stmtEnvio->error) {
+                throw new Exception('Error al crear datos de envío: ' . $stmtEnvio->error);
+            }
+            $id_datosEnvio = $this->conn->insert_id; // Obtener el ID del último registro insertado
+            $stmtEnvio->close();
+
+            // Insertar en Pedido
+            $stmtPedido = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");
+            $stmtPedido->bind_param("iids", $id_cliente, $id_datosEnvio, $total, $estado);
+            $stmtPedido->execute();
+            if ($stmtPedido->error) {
+                throw new Exception('Error al crear el pedido: ' . $stmtPedido->error);
+            }
+            $id_pedido = $this->conn->insert_id; // Obtener el ID del último pedido insertado
+            $stmtPedido->close();
+
+            // Insertar productos en ProductoPedido
+            $stmtProd = $this->conn->prepare("INSERT INTO Producto_Pedido (ID_Pedido, ID_Producto, Cantidad, Precio) VALUES (?, ?, ?, ?)");
+            foreach ($productos as $prod) {
+                $id_producto = $prod['id_producto'];
+                $cantidad = $prod['cantidad'];
+                $precio = $prod['precio'];
+
+                $stmtProd->bind_param("iiid", $id_pedido, $id_producto, $cantidad, $precio);
+                $stmtProd->execute();
+
+                if ($stmtProd->error) {
+                    throw new Exception('Error al agregar producto al pedido: ' . $stmtProd->error);
+                }
+            }
+            $stmtProd->close();
+
+            // Commit transaction
+            $this->conn->commit();
+            return ['mensaje' => 'Pedido creado correctamente', 'ID_Pedido' => $id_pedido];
+
+        } catch (Exception $e) {
+            $this->conn->rollback(); // Revertir en caso de error
+            return ['error' => $e->getMessage()];
         }
     }
 

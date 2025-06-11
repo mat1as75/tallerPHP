@@ -30,12 +30,12 @@ $router->add('DELETE', '/pedidos/{id}', [$pedidoController, 'cancel']);
 
 // RUTAS PARA PRODUCTOS PEDIDOS
 $router->add('GET', '/productos/pedido/{id_pedido}', [$productoPedidoController, 'getProductoPedidoByIdPedido']);
-$router->add('POST', '/productos/pedido', [$productoPedidoController, 'create']);
 
 // RUTAS PARA DATOS DE ENVIO
 $router->add('POST', '/pedido/datosenvio', [$datosEnvioController, 'create']);
 
 // RUTAS PARA MARCAS
+$router->add('GET', '/marcas', [$marcaController, 'getMarcas']);
 $router->add('POST', '/marcas', [$marcaController, 'create']);
 
 ?>
