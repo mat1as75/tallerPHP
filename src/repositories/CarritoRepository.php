@@ -11,67 +11,105 @@ class CarritoRepository
         $this->conn = $db->connect();
     }
 
-    public function getCarritos()
+    // Obtener el carrito de un usuario   
+    public function getCarrito($id_usuario)
     {
-        $sql = "SELECT * FROM carrito";
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM carrito WHERE id_usuario = ?");
+            $stmt->bind_param("i", $id_usuario);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $carrito = [];
+            while ($row = $result->fetch_assoc()) {
+                $carrito[] = $row;
+            }
+            $stmt->close();
+            return $carrito;
+        } catch (Exception $e) {
+            return [];
+        }
     }
-
-    public function getCarritoById($id)
+    
+     // Agregar un producto al carrito 
+    public function addProducto($id_usuario, $id_producto, $cantidad)
     {
-        $sql = "SELECT * FROM carrito WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+        try {
+            // Comprobar si el producto ya existe en el carrito
+            $stmt = $this->conn->prepare("SELECT cantidad FROM carrito WHERE id_usuario = ? AND id_producto = ?");
+            $stmt->bind_param("ii", $id_usuario, $id_producto);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-    public function create($data)
+            if ($result->num_rows > 0) {
+                // Actualizar la cantidad si ya existe
+                $row = $result->fetch_assoc();
+                $nuevaCantidad = $row['cantidad'] + $cantidad;
+                return $this->updateCantidad($id_usuario, $id_producto, $nuevaCantidad);
+            } else {
+                // Agregar nuevo 
+                $stmtInsert = $this->conn->prepare("INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (?, ?, ?)");
+                $stmtInsert->bind_param("iii", $id_usuario, $id_producto, $cantidad);
+                $stmtInsert->execute();
+                if ($stmtInsert->error) {
+                    return false;
+                }
+                $stmtInsert->close();
+                return true;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+  
+     // Eliminar un producto del carrito
+    public function removeProducto($id_usuario, $id_producto)
     {
-        $sql = "INSERT INTO carrito (
-            id_usuario, 
-            id_producto, 
-            cantidad 
-            ) VALUES (?, ?, ?)
-        ";
-        $stmt = $this->conn->prepare(query: $sql);
-        $stmt->execute(
-            [
-                $data['id_usuario'],
-                $data['id_producto'],
-                $data['cantidad']
-            ]
-        );
-        return ['mensaje' => 'Carrito creado'];
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM carrito WHERE id_usuario = ? AND id_producto = ?");
+            $stmt->bind_param("ii", $id_usuario, $id_producto);
+            $stmt->execute();
+            if ($stmt->error) {
+                return false;
+            }
+            $stmt->close();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
-
-    public function update($id, $data)
+    
+     // Vaciar el carrito 
+    public function clearCarrito($id_usuario)
     {
-        $sql = "UPDATE carrito SET 
-            id_usuario = ?, 
-            id_producto = ?, 
-            cantidad = ?, 
-            WHERE id = ?
-        ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute(
-            [
-                $data['id_usuario'],
-                $data['id_producto'],
-                $data['cantidad'],
-                $id
-            ]
-        );
-        return ['mensaje' => 'Carrito actualizado'];
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM carrito WHERE id_usuario = ?");
+            $stmt->bind_param("i", $id_usuario);
+            $stmt->execute();
+            if ($stmt->error) {
+                return false;
+            }
+            $stmt->close();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
-
-    public function delete($id)
+ 
+    // Actualizar la cantidad de un producto en el carrito
+    public function updateCantidad($id_usuario, $id_producto, $nuevaCantidad)
     {
-        $sql = "DELETE FROM carrito WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$id]);
-        return ['mensaje' => 'Carrito eliminado'];
+        try {
+            $stmt = $this->conn->prepare("UPDATE carrito SET cantidad = ? WHERE id_usuario = ? AND id_producto = ?");
+            $stmt->bind_param("iii", $nuevaCantidad, $id_usuario, $id_producto);
+            $stmt->execute();
+            if ($stmt->error) {
+                return false;
+            }
+            $stmt->close();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
-}
-
+}    
 ?>

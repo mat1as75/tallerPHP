@@ -10,31 +10,86 @@ class CarritoController
         $this->carrito = new CarritoRepository();
     }
 
-    public function getCarritos()
+    // Obtener el carrito de un usuario
+    public function getCarrito($id_usuario)
     {
-        echo json_encode($this->carrito->getCarritos());
+        $carrito = $this->carrito->getCarrito($id_usuario);
+        echo json_encode($carrito);
     }
 
-    public function getCarritoById($id)
-    {
-        echo json_encode($this->carrito->getCarritoById($id));
-    }
-
-    public function create()
+    // Agregar un producto al carrito
+    public function addProducto()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        echo json_encode($this->carrito->create($data));
+
+        if (!$data['id_usuario'] || !$data['id_producto'] || !$data['cantidad']) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Usuario, Producto y Cantidad es requerido"]);
+            return;
+        }
+
+        $resultado = $this->carrito->addProducto(
+            $data['id_usuario'],
+            $data['id_producto'],
+            $data['cantidad']
+        );
+
+        echo json_encode(["success" => $resultado]);
     }
 
-    public function update($id)
+    // Eliminar un producto del carrito
+    public function removeProducto()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        echo json_encode($this->carrito->update($id, $data));
+
+        if (!$data['id_usuario'] || !$data['id_producto']) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Usuario y Producto es requerido"]);
+            return;
+        }
+
+        $resultado = $this->carrito->removeProducto(
+            $data['id_usuario'],
+            $data['id_producto']
+        );
+
+        echo json_encode(["success" => $resultado]);
     }
 
-    public function delete($id)
+    // Vaciar el carrito 
+    public function clearCarrito()
     {
-        echo json_encode($this->carrito->delete($id));
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!$data['id_usuario']) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Usuario es requerido"]);
+            return;
+        }
+
+        $resultado = $this->carrito->clearCarrito($data['id_usuario']);
+
+        echo json_encode(["success" => $resultado]);
+    }
+
+    // Actualizar la cantidad de un producto en el carrito
+    public function updateCantidad()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!$data['id_usuario'] || !$data['id_producto'] || !$data['cantidad']) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Usuario, Producto y Cantidad es requerido"]);
+            return;
+        }
+
+        $resultado = $this->carrito->updateCantidad(
+            $data['id_usuario'],
+            $data['id_producto'],
+            $data['cantidad']
+        );
+
+        echo json_encode(["success" => $resultado]);
     }
 }
 ?>
