@@ -212,13 +212,6 @@ class PedidoRepository
             foreach ($productos as $producto) {
                 if (!$this->checkPedidoProducto($producto['id_producto'])) {
                     return ['error' => 'Producto inválido en el pedido'];
-                } else {
-                    // $this->productoPedidoRepository->create(
-                    //     $data['ID_Pedido'],
-                    //     $producto['id_producto'],
-                    //     $producto['cantidad'] ?? 1,
-                    //     $producto['precio'] ?? 0
-                    // );
                 }
             }
         } else {
