@@ -16,6 +16,9 @@ $marcaController = new MarcaController();
 $router->add('GET', '/usuarios', [$usuarioController, 'getUsuarios']);
 $router->add('GET', '/usuarios/{id}', [$usuarioController, 'getUsuarioById']);
 $router->add('POST', '/usuarios', [$usuarioController, 'create']);
+$router->add('POST','/inisiarsesion', [$usuarioController,'inisiarsesion']);
+$router->add('PUT','/recuperarpassword', [$usuarioController,'RecuperarPassword']);
+$router->add('PUT','/cambiopassword', [$usuarioController,'CambioPassword']);
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);
