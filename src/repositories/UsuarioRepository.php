@@ -13,7 +13,7 @@ class UsuarioRepository
 
     public function getUsuarios()
     {
-        $sql = "SELECT * FROM usuario";
+        $sql = "SELECT * FROM Usuario";
         $result = mysqli_query($this->conn, $sql);
         $usuarios = [];
 
@@ -26,33 +26,74 @@ class UsuarioRepository
 
     public function getUsuarioById($id)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM usuario WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM Usuario WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();
     }
 
-    public function create($email, $password, $nombre, $apellido)
-    {
+  public function create($email, $password, $nombre, $apellido, $rol)
+{
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $activo = 1;
 
-        $expiracionToken = "0000-00-00";
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->conn->prepare("INSERT INTO usuario (
-            email, 
-            contrasena, 
-            nombre, 
-            apellido,
-            expiracion_token
-            ) VALUES (?, ?, ?, ?, ?)");   
-        $stmt->bind_param("sssss", $email, $hashed, $nombre, $apellido, $expiracionToken);
-        return $stmt->execute();
+    $stmt = $this->conn->prepare("INSERT INTO Usuario (
+        Email, Nombre, Apellido, Contrasena, Activo, Rol
+    ) VALUES (?, ?, ?, ?, ?, ?)");
+
+    $stmt->bind_param("ssssss", $email, $nombre, $apellido, $hashed, $activo, $rol);
+    
+    $r = $stmt->execute();
+
+    
+    // Verificamos si se insertó bien el usuario
+    if (!$r) {
+        echo json_encode("Error al insertar el usuario.");
+        return false;
     }
+
+    $user = $this->buscarUsuarioporMail($email);
+if ($user && isset($user["ID"])) {
+    $id = $user["ID"];
+    }
+
+   // Según el rol, insertamos en la tabla correspondiente
+    if (strtolower($rol) === "cliente") {
+        $ok = $this->ConexionconCliente($id);
+        if ($ok) {
+          
+            return true;
+        } else {
+        
+            return false;
+        }
+    }//ACA SEGUIRIA PARA ADMINISTRADOR
+
+    
+
+}
+
+
+ public function ConexionconCliente($id){
+    $stmt = $this->conn->prepare("INSERT INTO Cliente (ID , URL_Imagen ,tokenrecuperacion) VALUES (?, null, 0)");
+
+    $stmt->bind_param("s", $id);
+
+     $success = $stmt->execute();
+
+    return $success; // true si fue exitoso, false si falló
+}
+
+
+
+
+
 
     public function update($email, $password, $nombre, $apellido)
     {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->conn->prepare("UPDATE usuario SET  
+        $stmt = $this->conn->prepare("UPDATE Usuario SET  
             contrasena = ?, 
             nombre = ?, 
             apellido = ? 
@@ -63,7 +104,7 @@ class UsuarioRepository
 
     public function delete($email)
     {
-        $stmt = $this->conn->prepare("UPDATE usuario SET activo = 0 WHERE email = ?");
+        $stmt = $this->conn->prepare("UPDATE Usuario SET activo = 0 WHERE email = ?");
         $stmt->bind_param("i", $email);
         return $stmt->execute();
     }
@@ -72,7 +113,9 @@ class UsuarioRepository
 
         public function buscarUsuarioporMail($email)
     {
-        $sql = "SELECT * FROM usuario WHERE email = ?";
+
+
+        $sql = "SELECT * FROM Usuario WHERE email = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -89,26 +132,27 @@ class UsuarioRepository
 
        public function enviomailverificado($email) 
        {
-    error_log("ENTRÉ A VERIFICADO");
+
 
     $mailer = new MailService();
-    $usuario = $this->buscarUsuarioporMail($email);
-    if (!$usuario) {
-        return false;
+      $user = $this->buscarUsuarioporMail($email);
+if ($user && isset($user["ID"])) {
+    $id = $user["ID"];
     }
-    // Acceso a array asociativo
-    $nombre = $usuario['nombre'];
+
 
     $token = bin2hex(random_bytes(16));
-    $expiracion = date("Y-m-d H:i:s", strtotime("+1 hour"));
+  //  $expiracion = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
-    $stmt = $this->conn->prepare("UPDATE usuario SET tokenrecuperacion = ?, expiracion_token= ? WHERE email = ?");
-    $stmt->bind_param("sss", $token, $expiracion, $email);
+    $stmt = $this->conn->prepare("UPDATE Cliente SET tokenrecuperacion = ? WHERE id = ?");
+    $stmt->bind_param("ss", $token,  $id);
+
+
     if (!$stmt->execute()) {
         return false;
     };
     // Llamo al archivo MailSender
-   $enviado =$mailer->enviarRecuperacion($email, $usuario['nombre'], $token);
+   $enviado =$mailer->enviarRecuperacion($email, $user['nombre'], $token);
     if ($enviado == true) {
          echo json_encode(["Correo enviado exitosamente"]);
 
@@ -123,16 +167,34 @@ class UsuarioRepository
 }
 
 
-        
+
+    public function verificoToken($token){
+
+        $stm = $this->conn->prepare("SELECT * FROM Cliente WHERE tokenrecuperacion = ? ");
+        $stm->bind_param("s", $token);
+        $stm->execute();
+          $result = $stm->get_result();
+
+            if ($result->num_rows === 1) {
+                return $result->fetch_assoc();
+            } else {
+                return false; // No encontró usuario
+            }
+
+    }        
         
 
 public function tokenexiste($email, $token) {
 
-    $sql = "SELECT expiracion_token FROM usuario WHERE email = :email AND tokenrecuperacion = :token";
+
+    $usuario = $this->buscarUsuarioporMail($email);
+
+    $id = $usuario["ID"];
+
+    $sql = "SELECT expiracion_token FROM Cliente WHERE id = ? AND tokenrecuperacion = ?";
 
     $stmt = $this->conn->prepare($sql);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':token', $token);
+    $stmt->bind_param('ss', $id, $token);
     $stmt->execute();
 
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -153,11 +215,16 @@ public function tokenexiste($email, $token) {
 
 
 public function comparoTokens($email, $token) {
+
+    $usuario = $this->buscarUsuarioporMail($email);
+
+    $id = $usuario['ID'];
+
     // SQL usando placeholders (?) en lugar de :email/:token
     $sql = "
         SELECT tokenrecuperacion, expiracion_token
-        FROM usuario
-        WHERE email = ?
+        FROM Cliente
+        WHERE id = ?
         LIMIT 1
     ";
 
@@ -167,7 +234,7 @@ public function comparoTokens($email, $token) {
     }
 
     // Enlazar el email a la consulta
-    $stmt->bind_param("s", $email);
+    $stmt->bind_param("s", $id);
 
     $stmt->execute();
     $res = $stmt->get_result();
@@ -203,32 +270,56 @@ public function comparoTokens($email, $token) {
 
 
 
-public function AtualizoPassword($email, $token, $nuevaPassword) {
+public function AtualizoPassword($token, $nuevaPassword) {
 
-    if (!$this->comparoTokens($email, $token)) {
-        return false;
-    }
+
+
+    $tokenusr = $this->verificoToken($token);
+    $id = $tokenusr['ID'];
+
+    //Despues de obtener el usuario por medio del token
+    $usr = $this->getUsuarioById($id);
+
 
     // Hashear la nueva contraseña
     $hash = password_hash($nuevaPassword, PASSWORD_DEFAULT);
+    // Guarda la nueva contrasenia
+   $sql = "UPDATE Usuario SET Contrasena = ? WHERE ID = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param('si', $hash, $id); 
+    $stmt->execute();
 
-    $sql = "UPDATE usuario SET password = :password, token = NULL WHERE email = :email AND token = :token";
 
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->bindParam(':password', $hash);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':token', $token);
-
-    if ($stmt->execute()) {
+    if ($stmt->affected_rows === 1) {
         echo json_encode(["PASSWORD CAMBIADA EXITOSAMENTE"]);
     return true;
 } else {
-    // Para poder lo que paso
+    // Para poder saber lo que paso en caso de error
     error_log(print_r($stmt->errorInfo(), true));
     return false;
 }
 
     }
+
+
+
+public function comprasRealizadas($id){
+
+    $sql = "SELECT * FROM Pedido WHERE ID_Cliente = ?";
+    $stm = $this->conn->prepare($sql);
+    $stm->bind_param("i", $id);
+    $stm->execute();
+
+    $result = $stm->get_result();
+    $compras = [];
+
+     while ($row = $result->fetch_assoc()) {
+        $compras[] = $row;
+    }
+
+    return $compras;
+
+}
 
 
 

@@ -29,9 +29,12 @@ class MailService {
         $this->mail->setFrom('mnjtecno@tallerphp.uy', 'MNJ Tecno');
         $this->mail->addAddress($email, $nombre);
 
-        $urlRest = "http://localhost:4200/cambiopassword?token=$token&email=$email";
-        $this->mail->Subject = 'Recuperación de contraseña';
-        $this->mail->Body = "Hola $nombre,\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n$urlRest\n\nSaludos,\nMNJ Tecno";
+        $mensaje1 = "Recuperación de contraseña";
+        $mensaje2 = "Hola $nombre,\n\nEste es el token para recuperar su Password $token\n\nSaludos,\nMNJ Tecno";
+
+
+        $this->mail->Subject = $mensaje1;
+        $this->mail->Body = $mensaje2;
 
 
         $this->mail->send();

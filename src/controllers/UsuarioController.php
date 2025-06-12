@@ -6,6 +6,16 @@ class UsuarioController
 {
     private $usuario;
 
+
+
+
+
+
+
+
+
+
+
     public function __construct()
     {
         $this->usuario = new UsuarioRepository();
@@ -32,7 +42,7 @@ class UsuarioController
     {
         $input = json_decode(file_get_contents("php://input"), true);
 
-        echo json_encode("LLEGASTE PAPU");
+ 
        
         if (!isset($input['nombre'], $input['email'], $input['password'])) {
             http_response_code(400);
@@ -44,23 +54,30 @@ class UsuarioController
         $password = trim($input['password']);
         $nombre = trim($input['nombre']);
         $apellido = trim($input['apellido']);
-
+        $rol = trim($input['rol']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             echo json_encode(["mensaje" => "Email no válido"]);
             return;
         }
 
-        echo json_encode("LLEGASTE PAPU2");
        
-        $success = $this->usuario->create($email, $password, $nombre, $apellido);
+        $success = $this->usuario->create($email, $password, $nombre, $apellido, $rol);
 
         if ($success) {
-            http_response_code(201);
-            echo json_encode(["mensaje" => "Usuario creado con éxito PELOTUDO"]);
+            if($rol == "cliente") {
+                http_response_code(201);
+                echo json_encode(["mensaje" => "Cliente creado con éxito "]);
+            }else if ($rol == 'Administrador'){
+                http_response_code(201);
+                echo json_encode(['mensaje'=> 'Administrador Creado con exito']);
+            }else{
+                http_response_code(201);
+                echo json_encode(['mensaje'=> 'Usuario creado con exito']);
+            }
         } else {
             http_response_code(500);
-            echo json_encode(["mensaje" => "Error al crear el usuario PELOTUDO"]);
+            echo json_encode(["mensaje" => "Error al crear el usuario"]);
         }
     }
 
@@ -123,33 +140,68 @@ class UsuarioController
     
 
     $email= trim($input['email']);
-    $password= trim($input(['password']));
+    $password= trim($input['password']);
 
     $usuario = $this->usuario->buscarUsuarioporMail($email);
 
+    
  if (!$usuario) {
         http_response_code(401);
         echo json_encode(["mensaje" => "Usuario no encontrado"]);
         return;
     }
 
+
+    if ($usuario && isset($usuario["Contrasena"])) {
+    $contra = $usuario["Contrasena"];
+    }
+    
+    
     // Aquí va la verificación de la contraseña
-    if (!password_verify($password, $usuario['password'])) {
+    if (!password_verify($password, $contra)) {
         http_response_code(401);
         echo json_encode(["mensaje" => "Contraseña incorrecta"]);
         return;
     }
 
+    if(!(isset($_COOKIE['session_ID']))) //isset() comprueba si la cookie (session_ID) está
+                                         //definida dentro de la script que se está ejecutando.
+     {
+        setcookie(
+    'session_ID',
+    $usuario['ID'],
+  [
+           'expires' => time() + 3600,
+            'path' => '/',
+            'secure' => false,      
+            'httponly' => false,
+            'samesite' => 'Lax'    // Necesario para cookies entre dominios
+  ]
+);
+
+        //echo  json_encode( "Se ha creado la cookie con el ID ");
+     }else{
+        $valor = $_COOKIE["session_ID"];
+        //echo json_encode("YA EXISTE COOKIE". $valor);
+     }
+        
+
+
+
+
+
+
+
     // Si pasa la verificación, inicio exitoso
     http_response_code(200);
-    echo json_encode([
+   /* echo json_encode([
         "mensaje" => "Inicio de sesión exitoso",
         "usuario" => [
-            "id" => $usuario['id'],
-            "nombre" => $usuario['nombre'],
-            "email" => $usuario['email']
-        ]
-    ]);
+            "id" => $usuario['ID'],
+            "nombre" => $usuario['Nombre'],
+            "email" => $usuario['Email']
+        ] datos del usuarios
+    ]);*/
 
 
 
@@ -198,34 +250,27 @@ public function CambioPassword(){
            // 1. Recibir y decodificar los datos del cuerpo JSON
     $input = json_decode(file_get_contents("php://input"), true);
 
-    if(!isset($input['email'])){
+     if(!isset($input['token']) || !isset($input['password']) ){
         http_response_code(400);
-        echo json_encode(["mensaje"=>"Falta email"]);
+        echo json_encode(["mensaje"=>"Falta token o password"]);
         return;
     }
 
-
-    $email= trim($input['email']);
+    
     $token= trim($input['token']);
     $nuevaPass = trim($input['password']);
 
-    $usuario = $this->usuario->buscarUsuarioporMail($email);
-
-
-    if (!$usuario) {
-        http_response_code(400);
-        echo json_encode(['mensaje'=> 'Usuario con ese email no encontrado el email RECIBIDO = > '. $email]);
-    }
-
     //$otrotoken = $usuario['token'];
 
+
+   
    /* if ($otrotoken != $token) {
         http_response_code(400);
         echo json_encode(['mensaje'=> 'El Token no coincide'. $token. 'EL OTRO TOKE =>' . $otrotoken]);
     }*/
 
 
-    if($this->usuario->AtualizoPassword( $email, $token, $nuevaPass)){
+    if($this->usuario->AtualizoPassword($token, $nuevaPass)){
         http_response_code(200);
         echo json_encode(['mensaje'=> 'Contrasenia Actualizada con exito']);
         return true;
@@ -235,11 +280,80 @@ public function CambioPassword(){
         return false;
     }
 
-
+ 
+    
 
 
 }
 
 
+
+ public function VerificoToken(){
+
+              // 1. Recibir y decodificar los datos del cuerpo JSON
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    $token= trim($input["token"]);
+
+
+    $verifico = $this->usuario->verificoToken($token);
+
+
+    if ($verifico == null) {
+        http_response_code(400);
+        echo json_encode(['valido' => false, 'mensaje' => 'El token no es válido']);
+        return false;
+    }else{
+        http_response_code(200);
+        echo json_encode(['valido' => true, 'mensaje' => 'El token es válido']);
+        return true;
+    }
+
+
+
+
+
+ }
+
+
+    public function todastuscompras(){
+
+                  // 1. Recibir y decodificar los datos del cuerpo JSON
+    $input = json_decode(file_get_contents("php://input"), true);
+
+
+
+    $email = trim($input["email"]);
+
+       if(!isset($input['email'])){
+        http_response_code(400);
+        echo json_encode(["mensaje"=>"Falta email"]);
+        return;
+    }
+
+
+    $usr = $this->usuario->buscarUsuarioporMail( $email);
+
+
+        if ($usr == null){
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "Uusario no encontrado"]);
+            return false;
+        }
+
+
+    $compras = $this->usuario->comprasRealizadas($usr["ID"]);    
+
+    if($compras == null){
+        http_response_code(400);
+        echo json_encode(["Mensaje"=> "El usuario no tiene compras"]);
+        return false;
+    }else{
+        http_response_code(200);
+        echo json_encode(["Compras:"=> $compras]);
+    }
 }
+
+}
+
 ?>
