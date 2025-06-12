@@ -4,12 +4,15 @@ include_once __DIR__ . '/../src/controllers/PedidoController.php';
 include_once __DIR__ . '/../src/controllers/ProductoPedidoController.php';
 include_once __DIR__ . '/../src/controllers/DatosEnvioController.php';
 include_once __DIR__ . '/../src/controllers/MarcaController.php';
+include_once __DIR__ . '/../src/controllers/CarritoController.php';
 
 $usuarioController = new UsuarioController();
 $pedidoController = new PedidoController();
 $productoPedidoController = new ProductoPedidoController();
 $datosEnvioController = new DatosEnvioController();
 $marcaController = new MarcaController();
+$carritoController = new CarritoController();
+
 
 
 // RUTAS PARA USUARIOS
@@ -37,5 +40,12 @@ $router->add('POST', '/pedido/datosenvio', [$datosEnvioController, 'create']);
 // RUTAS PARA MARCAS
 $router->add('GET', '/marcas', [$marcaController, 'getMarcas']);
 $router->add('POST', '/marcas', [$marcaController, 'create']);
+
+// RUTAS PARA CARRITO
+$router->add('GET', '/carrito/{id_usuario}', [$carritoController, 'getCarrito']);
+$router->add('POST', '/carrito/agregar', [$carritoController, 'addProducto']);
+$router->add('DELETE', '/carrito/remover', [$carritoController, 'removeProducto']);
+$router->add('DELETE', '/carrito/vaciar', [$carritoController, 'clearCarrito']);
+$router->add('PATCH', '/carrito/actualizar', [$carritoController, 'updateCantidad']);
 
 ?>
