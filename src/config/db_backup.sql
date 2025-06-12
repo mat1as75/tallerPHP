@@ -114,6 +114,40 @@ INSERT INTO `Categoria` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Marca`
+--
+
+DROP TABLE IF EXISTS `Marca`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Marca` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `Nombre` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Categoria`
+--
+
+LOCK TABLES `Marca` WRITE;
+/*!40000 ALTER TABLE `Marca` DISABLE KEYS */;
+INSERT INTO `Marca` VALUES
+(1, 'Samsung'),
+(2, 'Gigabyte'),
+(3, 'HP'),
+(4, 'Logitech'),
+(5, 'Apple'),
+(6, 'Acer'),
+(7, 'Dell'),
+(8, 'Asus'),
+(9, 'Msi'),
+(10, 'Intel');
+/*!40000 ALTER TABLE `Marca` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Cliente`
 --
 
@@ -122,8 +156,9 @@ DROP TABLE IF EXISTS `Cliente`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Cliente` (
   `ID` int(11) NOT NULL,
-  `URL_Imagen` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`),
+  `tokenrecuperacion` VARCHAR(100),
+  `expiracion_token` datetime DEFAULT current_timestamp(),
   CONSTRAINT `Cliente_ibfk_1` FOREIGN KEY (`ID`) REFERENCES `Usuario` (`ID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -135,9 +170,9 @@ CREATE TABLE `Cliente` (
 LOCK TABLES `Cliente` WRITE;
 /*!40000 ALTER TABLE `Cliente` DISABLE KEYS */;
 INSERT INTO `Cliente` VALUES
-(3,'https://img.cliente.com/3.jpg'),
-(6,'https://img.cliente.com/6.jpg'),
-(9,'https://img.cliente.com/9.jpg');
+(3, NULL, NULL),
+(6, NULL, NULL),
+(9, NULL, NULL);
 /*!40000 ALTER TABLE `Cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -179,38 +214,6 @@ INSERT INTO `DatosEnvio` VALUES
 UNLOCK TABLES;
 
 --
--- Table structure for table `Gestor`
---
-
-DROP TABLE IF EXISTS `Gestor`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Gestor` (
-  `ID` int(11) NOT NULL,
-  `P_Producto` tinyint(1) DEFAULT NULL,
-  `P_Inventario` tinyint(1) DEFAULT NULL,
-  `P_Pedidos` tinyint(1) DEFAULT NULL,
-  `P_Validacion` tinyint(1) DEFAULT NULL,
-  `P_Soporte` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  CONSTRAINT `Gestor_ibfk_1` FOREIGN KEY (`ID`) REFERENCES `Usuario` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Gestor`
---
-
-LOCK TABLES `Gestor` WRITE;
-/*!40000 ALTER TABLE `Gestor` DISABLE KEYS */;
-INSERT INTO `Gestor` VALUES
-(2,0,1,0,0,0),
-(5,1,0,1,0,0),
-(8,0,1,1,0,1);
-/*!40000 ALTER TABLE `Gestor` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Pedido`
 --
 
@@ -222,14 +225,14 @@ CREATE TABLE `Pedido` (
   `ID_Cliente` int(11) DEFAULT NULL,
   `ID_DatosEnvio` int(11) DEFAULT NULL,
   `Total` decimal(10,2) DEFAULT NULL,
-  `Estado` enum('pendiente','pago','entregado','cancelado') DEFAULT NULL,
+  `Estado` enum('pendiente','procesado','enviado','entregado','cancelado') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   KEY `ID_Cliente` (`ID_Cliente`),
   KEY `ID_DatosEnvio` (`ID_DatosEnvio`),
   CONSTRAINT `Pedido_ibfk_1` FOREIGN KEY (`ID_Cliente`) REFERENCES `Usuario` (`ID`),
   CONSTRAINT `Pedido_ibfk_2` FOREIGN KEY (`ID_DatosEnvio`) REFERENCES `DatosEnvio` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,17 +242,16 @@ CREATE TABLE `Pedido` (
 LOCK TABLES `Pedido` WRITE;
 /*!40000 ALTER TABLE `Pedido` DISABLE KEYS */;
 INSERT INTO `Pedido` VALUES
-(1,6,1,1377.58,'pendiente','2025-05-19 18:59:40'),
-(2,9,2,1720.23,'pendiente','2025-05-19 18:59:40'),
-(3,3,3,1633.00,'pendiente','2025-05-19 18:59:40'),
-(4,6,4,1412.20,'pendiente','2025-05-19 18:59:40'),
-(5,9,5,1097.62,'pendiente','2025-05-19 18:59:40'),
-(6,3,6,2336.20,'pendiente','2025-05-19 18:59:40'),
-(7,6,7,1529.91,'pendiente','2025-05-19 18:59:40'),
-(8,9,8,2126.44,'pendiente','2025-05-19 18:59:40'),
-(9,3,9,1536.95,'pendiente','2025-05-19 18:59:40'),
-(10,6,10,660.43,'pendiente','2025-05-19 18:59:40'),
-(11,9,1,24.00,'pendiente','2025-05-28 19:19:26');
+(1,6,1,719.96,'pendiente','2025-05-19 18:59:40'),
+(2,9,2,299.97,'pendiente','2025-05-19 18:59:40'),
+(3,3,3,539.97,'pendiente','2025-05-19 18:59:40'),
+(4,6,4,199.99,'pendiente','2025-05-19 18:59:40'),
+(5,9,5,34.99,'pendiente','2025-05-19 18:59:40'),
+(6,3,6,1298.88,'pendiente','2025-05-19 18:59:40'),
+(7,6,7,199.99,'pendiente','2025-05-19 18:59:40'),
+(8,9,8,2099.98,'pendiente','2025-05-19 18:59:40'),
+(9,3,9,3996,'pendiente','2025-05-19 18:59:40'),
+(10,6,10,69.98,'pendiente','2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -267,12 +269,14 @@ CREATE TABLE `Producto` (
   `Precio` decimal(10,2) DEFAULT NULL,
   `Stock` int(11) DEFAULT NULL,
   `ID_Categoria` int(11) DEFAULT NULL,
-  `Marca` varchar(100) DEFAULT NULL,
+  `ID_Marca` int(10) DEFAULT NULL,
   `URL_Imagen` varchar(255) DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   KEY `ID_Categoria` (`ID_Categoria`),
-  CONSTRAINT `Producto_ibfk_1` FOREIGN KEY (`ID_Categoria`) REFERENCES `Categoria` (`ID`)
+  KEY `ID_Marca` (`ID_Marca`),
+  CONSTRAINT `Producto_ibfk_1` FOREIGN KEY (`ID_Categoria`) REFERENCES `Categoria` (`ID`),
+  CONSTRAINT `Producto_ibfk_2` FOREIGN KEY (`ID_Marca`) REFERENCES `Marca` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -283,28 +287,29 @@ CREATE TABLE `Producto` (
 LOCK TABLES `Producto` WRITE;
 /*!40000 ALTER TABLE `Producto` DISABLE KEYS */;
 INSERT INTO `Producto` VALUES
-(1,'Producto1','Descripción del producto 1',974.06,29,4,'Samsung','https://img.producto.com/1.jpg','2025-05-19 18:59:40'),
-(2,'Producto2','Descripción del producto 2',1983.09,100,2,'Gigabyte','https://img.producto.com/2.jpg','2025-05-19 18:59:40'),
-(3,'Producto3','Descripción del producto 3',1872.05,11,3,'HP','https://img.producto.com/3.jpg','2025-05-19 18:59:40'),
-(4,'Producto4','Descripción del producto 4',1800.42,57,1,'Logitech','https://img.producto.com/4.jpg','2025-05-19 18:59:40'),
-(5,'Producto5','Descripción del producto 5',933.50,77,5,'Gigabyte','https://img.producto.com/5.jpg','2025-05-19 18:59:40'),
-(6,'Producto6','Descripción del producto 6',1159.78,57,2,'Apple','https://img.producto.com/6.jpg','2025-05-19 18:59:40'),
-(7,'Producto7','Descripción del producto 7',1861.14,10,1,'Acer','https://img.producto.com/7.jpg','2025-05-19 18:59:40'),
-(8,'Producto8','Descripción del producto 8',513.26,100,1,'Dell','https://img.producto.com/8.jpg','2025-05-19 18:59:40'),
-(9,'Producto9','Descripción del producto 9',262.53,41,1,'Dell','https://img.producto.com/9.jpg','2025-05-19 18:59:40'),
-(10,'Producto10','Descripción del producto 10',1453.25,28,5,'Asus','https://img.producto.com/10.jpg','2025-05-19 18:59:40'),
-(11,'Producto11','Descripción del producto 11',1026.94,94,5,'Asus','https://img.producto.com/11.jpg','2025-05-19 18:59:40'),
-(12,'Producto12','Descripción del producto 12',1929.93,51,4,'Acer','https://img.producto.com/12.jpg','2025-05-19 18:59:40'),
-(13,'Producto13','Descripción del producto 13',219.84,65,6,'MSI','https://img.producto.com/13.jpg','2025-05-19 18:59:40'),
-(14,'Producto14','Descripción del producto 14',1362.58,39,4,'Dell','https://img.producto.com/14.jpg','2025-05-19 18:59:40'),
-(15,'Producto15','Descripción del producto 15',323.08,24,4,'MSI','https://img.producto.com/15.jpg','2025-05-19 18:59:40'),
-(16,'Producto16','Descripción del producto 16',1785.28,1,4,'Acer','https://img.producto.com/16.jpg','2025-05-19 18:59:40'),
-(17,'Producto17','Descripción del producto 17',534.25,42,2,'HP','https://img.producto.com/17.jpg','2025-05-19 18:59:40'),
-(18,'Producto18','Descripción del producto 18',493.27,1,3,'Asus','https://img.producto.com/18.jpg','2025-05-19 18:59:40'),
-(19,'Producto19','Descripción del producto 19',1862.18,67,1,'MSI','https://img.producto.com/19.jpg','2025-05-19 18:59:40'),
-(20,'Producto20','Descripción del producto 20',678.06,100,5,'Dell','https://img.producto.com/20.jpg','2025-05-19 18:59:40');
+(1,'Samsung Galaxy S25 Ultra 5G 256 GB - Titanium Black','El Samsung Galaxy S25 Ultra 5G 256 GB en color Titanium Black es un smartphone de alta gama con pantalla Dynamic AMOLED 2X de 6.9 pulgadas, cámara de 200 MP, batería de 5500 mAh, conectividad 5G y S Pen integrado. Diseñado para usuarios exigentes.',1049.99,29,6,1,'http://localhost:8080/php/tallerPHP/assets/images/prod1.jpg','2025-05-19 18:59:40'),
+(2,'Notebook Aorus 15 9mf‑e2la583sh Core I5 12500h 8GB DDR5 SSD','Notebook potente para gamers y profesionales, equipada con procesador Intel Core i5 de 12ª generación, 8GB DDR5 y almacenamiento SSD. Rendimiento gráfico y velocidad para tareas intensivas.',771.26,100,2,2,'http://localhost:8080/php/tallerPHP/assets/images/prod2.jpg','2025-05-19 18:59:40'),
+(3,'Notebook Hp 255 G10 Amd Ryzen 7 7730u 16gb 512gb 15,6" Fhd','Notebook confiable con procesador AMD Ryzen 7, 16GB RAM y SSD de 512GB. Pantalla Full HD de 15.6'' ideal para productividad y entretenimiento.',564.00,11,2,3,'http://localhost:8080/php/tallerPHP/assets/images/prod3.jpg','2025-05-19 18:59:40'),
+(4,'LogitechMaster Series MX Master 3S','Mouse ergonómico de alto rendimiento diseñado para profesionales. Con precisión avanzada, botones programables y conectividad inalámbrica.',119.99,57,5,4,'http://localhost:8080/php/tallerPHP/assets/images/prod4.jpg','2025-05-19 18:59:40'),
+(5,'Gigabyte Aorus M4','Mouse gamer con sensor óptico de alta precisión, diseño ambidiestro y retroiluminación RGB. Ideal para juegos de alto nivel.',59.99,77,5,2,'http://localhost:8080/php/tallerPHP/assets/images/prod5.png','2025-05-19 18:59:40'),
+(6,'Apple MacBook Air 13.6" Chip M4 245GB SSD 16GB RAM','Laptop liviana y potente de Apple con chip M4, 16GB RAM y SSD de 245GB. Rendimiento eficiente y pantalla brillante para usuarios creativos.',867.88,57,2,5,'http://localhost:8080/php/tallerPHP/assets/images/prod6.jpg','2025-05-19 18:59:40'),
+(7,'Pc Intel Core I5 10400f Pro Gamer - 16Gb - SSD - Radeon RX6500XT','PC de escritorio ideal para gaming y edición, con procesador Intel i5, 16GB RAM, almacenamiento SSD y tarjeta gráfica Radeon RX6500XT.',179.99,10,4,10,'http://localhost:8080/php/tallerPHP/assets/images/prod7.jpg','2025-05-19 18:59:40'),
+(8,'Mini PC Dell Optiplex 3046 SFF - Intel Core i5 - 8GB RAM - 180GB SSD - Windows 10 Pro','PC compacta de escritorio con procesador Intel Core i5, 8GB RAM y SSD de 180GB. Incluye Windows 10 Pro. Ideal para oficinas.',157.52,100,1,7,'http://localhost:8080/php/tallerPHP/assets/images/prod8.jpg','2025-05-19 18:59:40'),
+(9,'Mini PC Tiny Dell Optiplex 7070 - Intel Core i5 9na - 8GB RAM - 240GB SSD - Windows 11 Pro','Mini PC eficiente con procesador Intel i5 de 9ª generación, 8GB RAM y SSD de 240GB. Compacta y potente para espacios reducidos.',529.00,41,1,7,'http://localhost:8080/php/tallerPHP/assets/images/prod9.jpg','2025-05-19 18:59:40'),
+(10,'Teclado mecánico óptico para gaming TUF Gaming K7','Teclado mecánico óptico de alto rendimiento para gamers. Respuesta rápida, diseño resistente y retroiluminación personalizable.',179.99,28,5,8,'http://localhost:8080/php/tallerPHP/assets/images/prod10.jpg','2025-05-19 18:59:40'),
+(11,'Mouse Asus P511 Rog Chakram Core','Mouse gamer de precisión con sensor de alto rendimiento, personalización avanzada y diseño ergonómico para largas sesiones de juego.',99.99,94,5,8,'http://localhost:8080/php/tallerPHP/assets/images/prod11.jpg','2025-05-19 18:59:40'),
+(12,'Funda ecológica Vero','Funda ecológica y resistente, fabricada con materiales reciclados. Protección ideal para dispositivos portátiles con conciencia ambiental.',29.99,51,4,6,'http://localhost:8080/php/tallerPHP/assets/images/prod12.jpg','2025-05-19 18:59:40'),
+(13,'Notebook Gamer MSI GF63 Thin i7‑12650H 512GB 16GB RTX4060','Notebook gamer con procesador Intel i7, tarjeta gráfica RTX 4060, 16GB RAM y SSD de 512GB. Ideal para juegos exigentes y multitarea.',1199.00,65,2,9,'http://localhost:8080/php/tallerPHP/assets/images/prod13.jpg','2025-05-19 18:59:40'),
+(14,'Mochila Dell Negro- CP5724S','Mochila resistente y funcional con múltiples compartimentos, ideal para notebooks y accesorios. Diseño discreto y profesional.',79.99,39,4,7,'http://localhost:8080/php/tallerPHP/assets/images/prod14.jpg','2025-05-19 18:59:40'),
+(15,'MSI Adaptador USB tipo C a Gigabit Ethernet','Adaptador compacto que permite conexión Ethernet de alta velocidad mediante puerto USB-C. Ideal para mejorar la conectividad de dispositivos portátiles.',34.99,24,4,9,'http://localhost:8080/php/tallerPHP/assets/images/prod15.jpg','2025-05-19 18:59:40'),
+(16,'Notebook Acer Aspire Lite Core I7 1255u - 16GB RAM - 512GB SSD - Windows 11','Notebook delgada y potente con procesador Intel i7, 16GB RAM y SSD de 512GB. Perfecta para usuarios que necesitan rendimiento y portabilidad.',999.00,1,2,6,'http://localhost:8080/php/tallerPHP/assets/images/prod16.jpg','2025-05-19 18:59:40'),
+(17,'Notebook Gamer Hp Victus 15.6 I7‑12650h - 16GB RAM - 512GB SSD - RTX 4050 Color Performance Blue','Notebook para gaming con procesador Intel i7, GPU RTX 4050, 16GB RAM y 512GB SSD. Pantalla de 15.6'' y diseño moderno en color azul.',649.44,42,2,3,'http://localhost:8080/php/tallerPHP/assets/images/prod17.jpg','2025-05-19 18:59:40'),
+(18,'GPU Gigabyte GeForce RTX 5080 Aero 16GB','Tarjeta gráfica de alto rendimiento con 16GB de VRAM. Perfecta para gaming 4K, edición de video y aplicaciones intensivas.',1199.00,1,3,2,'http://localhost:8080/php/tallerPHP/assets/images/prod18.jpg','2025-05-19 18:59:40'),
+(19,'GPU MSI GeForce RTX 5080 Shadow 3X OC 16GB','GPU potente con overclocking de fábrica, 16GB de memoria y diseño térmico avanzado. Ideal para entusiastas y gamers profesionales.',1249.00,67,3,9,'http://localhost:8080/php/tallerPHP/assets/images/prod19.jpg','2025-05-19 18:59:40'),
+(20,'Mouse Dell Ms700 Bluetooth Travel','Mouse inalámbrico compacto con conectividad Bluetooth. Diseñado para viajes y uso diario, con batería de larga duración.',49.99,100,5,7,'http://localhost:8080/php/tallerPHP/assets/images/prod20.jpg','2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Producto` ENABLE KEYS */;
 UNLOCK TABLES;
+
 
 --
 -- Table structure for table `Producto_Pedido`
@@ -332,16 +337,16 @@ CREATE TABLE `Producto_Pedido` (
 LOCK TABLES `Producto_Pedido` WRITE;
 /*!40000 ALTER TABLE `Producto_Pedido` DISABLE KEYS */;
 INSERT INTO `Producto_Pedido` VALUES
-(1,10,4,314.92),
-(2,11,3,668.39),
-(3,7,3,157.59),
-(4,4,1,1773.38),
-(5,15,1,762.48),
-(6,17,2,376.79),
-(7,4,1,344.35),
-(8,1,2,1520.89),
-(9,16,4,1267.22),
-(10,15,2,415.71);
+(1,10,4,179.99),
+(2,11,3,99.99),
+(3,7,3,179.99),
+(4,4,1,119.99),
+(5,15,1,34.99),
+(6,17,2,649.44),
+(7,4,1,119.99),
+(8,1,2,1049.99),
+(9,16,4,999),
+(10,15,2,34.99);
 /*!40000 ALTER TABLE `Producto_Pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -359,7 +364,7 @@ CREATE TABLE `Usuario` (
   `Email` varchar(100) DEFAULT NULL,
   `Contrasena` varchar(255) DEFAULT NULL,
   `Activo` tinyint(1) DEFAULT NULL,
-  `Rol` enum('administrador','gestor','cliente') DEFAULT NULL,
+  `Rol` enum('administrador','cliente') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Email` (`Email`)
@@ -374,57 +379,15 @@ LOCK TABLES `Usuario` WRITE;
 /*!40000 ALTER TABLE `Usuario` DISABLE KEYS */;
 INSERT INTO `Usuario` VALUES
 (1,'Juan','Gómez','juan.gómez@correo.com','pass0',1,'administrador','2025-05-19 18:59:40'),
-(2,'Ana','Pérez','ana.pérez@correo.com','pass1',0,'gestor','2025-05-19 18:59:40'),
-(3,'Pedro','López','pedro.lópez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
-(4,'Lucía','Rodríguez','lucía.rodríguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
-(5,'Marcos','Fernández','marcos.fernández@correo.com','pass4',0,'gestor','2025-05-19 18:59:40'),
-(6,'Sofía','Martínez','sofía.martínez@correo.com','pass5',1,'cliente','2025-05-19 18:59:40'),
-(7,'Diego','Díaz','diego.díaz@correo.com','pass6',1,'administrador','2025-05-19 18:59:40'),
-(8,'Elena','Moreno','elena.moreno@correo.com','pass7',0,'gestor','2025-05-19 18:59:40'),
-(9,'Carlos','Álvarez','carlos.álvarez@correo.com','pass8',0,'cliente','2025-05-19 18:59:40'),
-(10,'Valeria','Romero','valeria.romero@correo.com','pass9',0,'administrador','2025-05-19 18:59:40');
+(2,'Pedro','López','pedro.lópez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
+(3,'Lucía','Rodríguez','lucía.rodríguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
+(4,'Sofía','Martínez','sofía.martínez@correo.com','pass5',1,'cliente','2025-05-19 18:59:40'),
+(5,'Diego','Díaz','diego.díaz@correo.com','pass6',1,'administrador','2025-05-19 18:59:40'),
+(6,'Carlos','Álvarez','carlos.álvarez@correo.com','pass8',0,'cliente','2025-05-19 18:59:40'),
+(7,'Valeria','Romero','valeria.romero@correo.com','pass9',0,'administrador','2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `Valoracion`
---
-
-DROP TABLE IF EXISTS `Valoracion`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Valoracion` (
-  `ID_Cliente` int(11) NOT NULL,
-  `ID_Producto` int(11) NOT NULL,
-  `Clasificacion` int(11) DEFAULT NULL CHECK (`Clasificacion` between 1 and 5),
-  `Comentario` text DEFAULT NULL,
-  `CreatedAt` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`ID_Cliente`,`ID_Producto`),
-  KEY `ID_Producto` (`ID_Producto`),
-  CONSTRAINT `Valoracion_ibfk_1` FOREIGN KEY (`ID_Cliente`) REFERENCES `Cliente` (`ID`),
-  CONSTRAINT `Valoracion_ibfk_2` FOREIGN KEY (`ID_Producto`) REFERENCES `Producto` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Valoracion`
---
-
-LOCK TABLES `Valoracion` WRITE;
-/*!40000 ALTER TABLE `Valoracion` DISABLE KEYS */;
-INSERT INTO `Valoracion` VALUES
-(3,2,3,'Comentario del cliente 3 sobre producto 2','2025-05-19 18:59:40'),
-(3,16,2,'Comentario del cliente 3 sobre producto 16','2025-05-19 18:59:40'),
-(3,20,5,'Comentario del cliente 3 sobre producto 20','2025-05-19 18:59:40'),
-(6,1,4,'Comentario del cliente 6 sobre producto 1','2025-05-19 18:59:40'),
-(6,6,4,'Comentario del cliente 6 sobre producto 6','2025-05-19 18:59:40'),
-(6,8,3,'Comentario del cliente 6 sobre producto 8','2025-05-19 18:59:40'),
-(6,9,3,'Comentario del cliente 6 sobre producto 9','2025-05-19 18:59:40'),
-(9,3,5,'Comentario del cliente 9 sobre producto 3','2025-05-19 18:59:40'),
-(9,4,4,'Comentario del cliente 9 sobre producto 4','2025-05-19 18:59:40'),
-(9,19,2,'Comentario del cliente 9 sobre producto 19','2025-05-19 18:59:40');
-/*!40000 ALTER TABLE `Valoracion` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -435,4 +398,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-28 19:30:16
+-- Dump completed on 2025-05-19 19:07:19
