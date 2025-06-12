@@ -22,16 +22,16 @@ class CarritoController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!$data['id_usuario'] || !$data['id_producto'] || !$data['cantidad']) {
+        if (!$data['ID_Cliente'] || !$data['ID_Producto'] || !$data['Cantidad']) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "ID de Usuario, Producto y Cantidad es requerido"]);
+            echo json_encode(["mensaje" => "ID de Cliente, Producto y Cantidad es requerido"]);
             return;
         }
 
         $resultado = $this->carrito->addProducto(
-            $data['id_usuario'],
-            $data['id_producto'],
-            $data['cantidad']
+            $data['ID_Cliente'],
+            $data['ID_Producto'],
+            $data['Cantidad']
         );
 
         echo json_encode(["success" => $resultado]);
@@ -42,15 +42,15 @@ class CarritoController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!$data['id_usuario'] || !$data['id_producto']) {
+        if (!$data['ID_Cliente'] || !$data['ID_Producto']) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "ID de Usuario y Producto es requerido"]);
+            echo json_encode(["mensaje" => "ID de Cliente y Producto es requerido"]);
             return;
         }
 
         $resultado = $this->carrito->removeProducto(
-            $data['id_usuario'],
-            $data['id_producto']
+            $data['ID_Cliente'],
+            $data['ID_Producto']
         );
 
         echo json_encode(["success" => $resultado]);
@@ -61,13 +61,13 @@ class CarritoController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!$data['id_usuario']) {
+        if (!$data['ID_Cliente']) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "ID de Usuario es requerido"]);
+            echo json_encode(["mensaje" => "ID de Cliente es requerido"]);
             return;
         }
 
-        $resultado = $this->carrito->clearCarrito($data['id_usuario']);
+        $resultado = $this->carrito->clearCarrito($data['ID_Cliente']);
 
         echo json_encode(["success" => $resultado]);
     }
@@ -77,16 +77,16 @@ class CarritoController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!$data['id_usuario'] || !$data['id_producto'] || !$data['cantidad']) {
+        if (!$data['ID_Cliente'] || !$data['ID_Producto'] || !$data['Cantidad']) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "ID de Usuario, Producto y Cantidad es requerido"]);
+            echo json_encode(["mensaje" => "ID de Cliente, Producto y Cantidad es requerido"]);
             return;
         }
 
         $resultado = $this->carrito->updateCantidad(
-            $data['id_usuario'],
-            $data['id_producto'],
-            $data['cantidad']
+            $data['ID_Cliente'],
+            $data['ID_Producto'],
+            $data['Cantidad']
         );
 
         echo json_encode(["success" => $resultado]);

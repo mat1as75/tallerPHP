@@ -29,26 +29,26 @@ class CarritoRepository
             return [];
         }
     }
-    
-     // Agregar un producto al carrito 
-    public function addProducto($id_usuario, $id_producto, $cantidad)
+
+    // Agregar un producto al carrito 
+    public function addProducto($ID_Cliente, $ID_Producto, $Cantidad)
     {
         try {
             // Comprobar si el producto ya existe en el carrito
-            $stmt = $this->conn->prepare("SELECT cantidad FROM carrito WHERE id_usuario = ? AND id_producto = ?");
-            $stmt->bind_param("ii", $id_usuario, $id_producto);
+            $stmt = $this->conn->prepare("SELECT Cantidad FROM Carrito WHERE ID_Cliente = ? AND ID_Producto = ?");
+            $stmt->bind_param("ii", $ID_Cliente, $ID_Producto);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
                 // Actualizar la cantidad si ya existe
-                $row = $result->fetch_assoc();
-                $nuevaCantidad = $row['cantidad'] + $cantidad;
-                return $this->updateCantidad($id_usuario, $id_producto, $nuevaCantidad);
+                $row = $result->fetch_all(MYSQLI_ASSOC);
+                $nuevaCantidad = $row[0]['Cantidad'] + $Cantidad;
+                return $this->updateCantidad($ID_Cliente, $ID_Producto, $nuevaCantidad);
             } else {
                 // Agregar nuevo 
-                $stmtInsert = $this->conn->prepare("INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (?, ?, ?)");
-                $stmtInsert->bind_param("iii", $id_usuario, $id_producto, $cantidad);
+                $stmtInsert = $this->conn->prepare("INSERT INTO Carrito (ID_Cliente, ID_Producto, Cantidad) VALUES (?, ?, ?)");
+                $stmtInsert->bind_param("iii", $ID_Cliente, $ID_Producto, $Cantidad);
                 $stmtInsert->execute();
                 if ($stmtInsert->error) {
                     return false;
@@ -57,16 +57,17 @@ class CarritoRepository
                 return true;
             }
         } catch (Exception $e) {
+            echo json_encode($e);
             return false;
         }
     }
-  
-     // Eliminar un producto del carrito
-    public function removeProducto($id_usuario, $id_producto)
+
+    // Eliminar un producto del carrito
+    public function removeProducto($ID_Cliente, $ID_Producto)
     {
         try {
-            $stmt = $this->conn->prepare("DELETE FROM carrito WHERE id_usuario = ? AND id_producto = ?");
-            $stmt->bind_param("ii", $id_usuario, $id_producto);
+            $stmt = $this->conn->prepare("DELETE FROM Carrito WHERE ID_Cliente = ? AND ID_Producto = ?");
+            $stmt->bind_param("ii", $ID_Cliente, $ID_Producto);
             $stmt->execute();
             if ($stmt->error) {
                 return false;
@@ -77,13 +78,13 @@ class CarritoRepository
             return false;
         }
     }
-    
-     // Vaciar el carrito 
-    public function clearCarrito($id_usuario)
+
+    // Vaciar el carrito 
+    public function clearCarrito($ID_Cliente)
     {
         try {
-            $stmt = $this->conn->prepare("DELETE FROM carrito WHERE id_usuario = ?");
-            $stmt->bind_param("i", $id_usuario);
+            $stmt = $this->conn->prepare("DELETE FROM Carrito WHERE ID_Cliente = ?");
+            $stmt->bind_param("i", $ID_Cliente);
             $stmt->execute();
             if ($stmt->error) {
                 return false;
@@ -94,13 +95,13 @@ class CarritoRepository
             return false;
         }
     }
- 
+
     // Actualizar la cantidad de un producto en el carrito
-    public function updateCantidad($id_usuario, $id_producto, $nuevaCantidad)
+    public function updateCantidad($ID_Cliente, $ID_Producto, $nuevaCantidad)
     {
         try {
-            $stmt = $this->conn->prepare("UPDATE carrito SET cantidad = ? WHERE id_usuario = ? AND id_producto = ?");
-            $stmt->bind_param("iii", $nuevaCantidad, $id_usuario, $id_producto);
+            $stmt = $this->conn->prepare("UPDATE Carrito SET Cantidad = ? WHERE ID_Cliente = ? AND ID_Producto = ?");
+            $stmt->bind_param("iii", $nuevaCantidad, $ID_Cliente, $ID_Producto);
             $stmt->execute();
             if ($stmt->error) {
                 return false;
@@ -111,5 +112,5 @@ class CarritoRepository
             return false;
         }
     }
-}    
+}
 ?>
