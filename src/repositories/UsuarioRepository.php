@@ -102,7 +102,7 @@ class UsuarioRepository
 
     public function ConexionconCliente($id)
     {
-        $stmt = $this->conn->prepare("INSERT INTO Cliente (ID , URL_Imagen ,tokenrecuperacion) VALUES (?, null, 0)");
+        $stmt = $this->conn->prepare("INSERT INTO Cliente (ID ,tokenrecuperacion) VALUES (?, 0)");
         $stmt->bind_param("s", $id);
         $success = $stmt->execute();
 

@@ -59,8 +59,8 @@ class UsuarioController
 
             if ($rol == "cliente") {
                 http_response_code(201);
-                echo json_encode(["mensaje" => "Cliente creado con éxito "]);
-                return;
+                return json_encode(["mensaje" => "Cliente creado con éxito "]);
+                //return;
             } else if ($rol == 'Administrador') {
                 http_response_code(201);
                 echo json_encode(['mensaje' => 'Administrador Creado con exito']);
