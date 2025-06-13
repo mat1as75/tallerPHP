@@ -33,17 +33,17 @@ class UsuarioController
     {
         $input = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($input['nombre'], $input['email'], $input['password'])) {
+        if (!isset($input['Nombre'], $input['Email'], $input['Password'])) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Faltan datos requeridos LA CONCHA DE TU MADRE"]);
+            echo json_encode(["mensaje" => "Faltan datos requeridos"]);
             return;
         }
 
-        $email = trim($input['email']);
-        $password = trim($input['password']);
-        $nombre = trim($input['nombre']);
-        $apellido = trim($input['apellido']);
-        $rol = trim($input['rol']);
+        $email = trim($input['Email']);
+        $password = trim($input['Password']);
+        $nombre = trim($input['Nombre']);
+        $apellido = trim($input['Apellido']);
+        $rol = trim($input['Rol']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             echo json_encode(["mensaje" => "Email no válido"]);
