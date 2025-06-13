@@ -13,19 +13,17 @@ $datosEnvioController = new DatosEnvioController();
 $marcaController = new MarcaController();
 $carritoController = new CarritoController();
 
-
-
 // RUTAS PARA USUARIOS
 $router->add('GET', '/usuarios', [$usuarioController, 'getUsuarios']);
 $router->add('GET', '/usuarios/{id}', [$usuarioController, 'getUsuarioById']);
 $router->add('POST', '/usuarios', [$usuarioController, 'create']);
-$router->add('POST','/inisiarsesion', [$usuarioController,'iniciarSecion']);
-$router->add('PUT','/recuperarpassword', [$usuarioController,'RecuperarPassword']);
-$router->add('PUT','/cambiopassword', [$usuarioController,'CambioPassword']);
-$router->add('POST','/verificotoken', [$usuarioController,'VerificoToken']);
-$router->add('GET','/historialcompras', [$usuarioController,'todastuscompras']);
-$router->add('POST','/desactivarcuenta/{id}', [$usuarioController,'desactivacuenta']);
-$router->add('POST','/cerrarsesion/{id}', [$usuarioController,'cerrarsesion']);
+$router->add('POST', '/inisiarsesion', [$usuarioController, 'iniciarSecion']);
+$router->add('PUT', '/recuperarpassword', [$usuarioController, 'RecuperarPassword']);
+$router->add('PUT', '/cambiopassword', [$usuarioController, 'CambioPassword']);
+$router->add('POST', '/verificotoken', [$usuarioController, 'VerificoToken']);
+$router->add('GET', '/historialcompras', [$usuarioController, 'todastuscompras']);
+$router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacuenta']);
+$router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);

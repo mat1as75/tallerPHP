@@ -11,14 +11,40 @@ class ProductoRepository
         $this->conn = $db->connect();
     }
 
-    public function getProductos()
+    public function getProductos($filtro)
     {
-        $sql = "SELECT * FROM Producto";
-        $result = mysqli_query($this->conn, $sql);
-        $productos = [];
-        while ($row = $result->fetch_assoc()) {
-            $productos[] = $row;
+        if (!isset($filtro) || $filtro === null) {
+            $sql = "SELECT * FROM Producto";
+            $stmt = $this->conn->prepare($sql);
+        } else {
+            $sql = "SELECT 
+                p.ID,
+                p.Nombre,
+                p.Descripcion,
+                p.Precio,
+                p.Stock,
+                p.URL_Imagen,
+                c.ID AS ID_Categoria,
+                m.ID AS ID_Marca
+            FROM Producto p
+            JOIN Categoria c ON p.ID_Categoria = c.ID
+            JOIN Marca m ON p.ID_Marca = m.ID
+            WHERE 
+                p.Nombre LIKE CONCAT('%', ?, '%') OR
+                c.Nombre LIKE CONCAT('%', ?, '%') OR
+                m.Nombre LIKE CONCAT('%', ?, '%')";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param('sss', $filtro, $filtro, $filtro);
         }
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $productos[] = $row;
+            }
+        }
+
+        $stmt->close();
         return $productos;
     }
 
