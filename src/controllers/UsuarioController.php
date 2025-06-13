@@ -29,6 +29,7 @@ class UsuarioController
 
     public function getUsuarioById($id)
     {
+        
         $usuario = $this->usuario->getUsuarioById($id);
         if ($usuario) {
             echo json_encode($usuario);
@@ -63,11 +64,23 @@ class UsuarioController
 
        
         $success = $this->usuario->create($email, $password, $nombre, $apellido, $rol);
+        
+        
+        $usuario = $this->usuario->buscarUsuarioporMail($email);
+    
+        //creocarrito
+     
 
-        if ($success) {
+
+
+        if($success == true) {
+             $this->creoCookie($usuario);
+             $this->creoSession( $usuario);
+      
             if($rol == "cliente") {
                 http_response_code(201);
                 echo json_encode(["mensaje" => "Cliente creado con éxito "]);
+                return;
             }else if ($rol == 'Administrador'){
                 http_response_code(201);
                 echo json_encode(['mensaje'=> 'Administrador Creado con exito']);
@@ -144,13 +157,21 @@ class UsuarioController
 
     $usuario = $this->usuario->buscarUsuarioporMail($email);
 
-    
- if (!$usuario) {
+   
+
+ //VERIFICO EXISTE USUARIO 
+    if (!$usuario) {
         http_response_code(401);
         echo json_encode(["mensaje" => "Usuario no encontrado"]);
         return;
     }
 
+    //VERIFICO CLIENTE ACTIVO
+    if (!$this->usuario->clienteActivo($usuario)) {
+    http_response_code(400);
+    echo json_encode(['Mensaje'=> 'Cliente dado de baja']);
+    return;
+    }
 
     if ($usuario && isset($usuario["Contrasena"])) {
     $contra = $usuario["Contrasena"];
@@ -164,44 +185,13 @@ class UsuarioController
         return;
     }
 
-    if(!(isset($_COOKIE['session_ID']))) //isset() comprueba si la cookie (session_ID) está
-                                         //definida dentro de la script que se está ejecutando.
-     {
-        setcookie(
-    'session_ID',
-    $usuario['ID'],
-  [
-           'expires' => time() + 3600,
-            'path' => '/',
-            'secure' => false,      
-            'httponly' => false,
-            'samesite' => 'Lax'    // Necesario para cookies entre dominios
-  ]
-);
 
-        //echo  json_encode( "Se ha creado la cookie con el ID ");
-     }else{
-        $valor = $_COOKIE["session_ID"];
-        //echo json_encode("YA EXISTE COOKIE". $valor);
-     }
-        
+    $this->creoCookie($usuario);
+    $this->creoSession($usuario);
 
-
-
-
-
-
-
-    // Si pasa la verificación, inicio exitoso
+  
     http_response_code(200);
-   /* echo json_encode([
-        "mensaje" => "Inicio de sesión exitoso",
-        "usuario" => [
-            "id" => $usuario['ID'],
-            "nombre" => $usuario['Nombre'],
-            "email" => $usuario['Email']
-        ] datos del usuarios
-    ]);*/
+    echo json_encode(["Mensaje"=> "Se Inicio sesion de manera exitosa"]);
 
 
 
@@ -225,15 +215,14 @@ class UsuarioController
 
     $email= trim($input['email']);
 
- $usuario = $this->usuario->buscarUsuarioporMail($email);
+     $usuario = $this->usuario->buscarUsuarioporMail($email);
 
-if (!$usuario) {
+    if (!$usuario) {
         http_response_code(401);
         echo json_encode(["mensaje" => "email no registrado"]);
         return;
     }
 
-error_log("ESTOY ACA PODES VER ANTES DEL VERIFICADO");
     if($this->usuario->enviomailverificado($email)){
         http_response_code(200);
         echo json_encode(["mensaje"=> "Mail de verificacion enviado"]);
@@ -354,6 +343,140 @@ public function CambioPassword(){
     }
 }
 
+
+    public function cerrarsesion($id){
+
+ 
+        $usuario = $this->usuario->getUsuarioById($id);
+
+
+    if ($usuario == null){
+        http_response_code(400);
+        echo json_encode(["Mensaje"=>"El usuario no fue encontrado"]);
+        return;
+    }
+
+
+    $cook = $this->borroCookie($usuario["ID"]);
+    $sess = $this->borroSesion();
+      if($cook && $sess){
+        http_response_code(200);
+        echo json_encode(['Mensaje'=> 'Cookie eliminada con exito']);
+      }else {
+        http_response_code(400);
+        echo json_encode(['Mensaje'=> 'No se pudo borrar la cookie']);
+      }
+
+
+
+    }
+
+    public function borroCookie(string $cookieid) {
+    setcookie("session_ID", $cookieid, time() - 3600, '/');
+    return true;
+    }
+
+
+    public function desactivacuenta($id){
+
+
+        $usuario = $this->usuario->getUsuarioById($id);
+
+        if ($usuario == null){
+            http_response_code(400);
+            echo json_encode(['Mensaje'=> 'usuario no encontrado']);
+            return;
+        }
+
+        $this->borroCookie($usuario['ID']);
+        $sess = $this->borroSesion();
+
+        $delete = $this->usuario->darBajaUsuario($usuario);
+
+
+
+
+    }
+
+
+
+    public function borroSesion(){
+    session_start();       // 1. Reanuda la sesión actual del usuario
+
+    $_SESSION = [];        // 2. Limpia todas las variables de la sesión
+
+    // 3. Elimina la cookie de sesión PHP (PHPSESSID)
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(), '', time() - 3600,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+
+   if(session_destroy()){
+    return true;
+   }     
+    return false;
 }
+
+
+
+public function creoCookie($usuario) {
+    // Verifico si la cookie 'session_ID' no existe todavía
+    if (!isset($_COOKIE['session_ID'])) {
+        // Crear cookie con configuración adecuada
+        setcookie(
+            'session_ID',
+            $usuario['ID'],
+            [
+                'expires' => time() + 3600,  // 1 hora de duración
+                'path' => '/',
+                'secure' => false,           
+                'httponly' => false,         
+                'samesite' => 'Lax'          // Para que pueda pasar entre dominios
+            ]
+        );
+
+        // Nota: setcookie() solo envía la cookie en la respuesta HTTP,
+        // no actualiza $_COOKIE en esta ejecución.
+        // por eso lo seteo
+        $_COOKIE['session_ID'] = $usuario['ID'];
+
+        // Podés retornar un mensaje o true si querés indicar éxito
+        return true;
+    } else {
+        // La cookie ya existe, podés retornar false o el valor si querés
+        return false;
+    }
+}
+
+public function creoSession($usuario) {
+    // Iniciar o reanudar sesión
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Si ya hay sesión para este usuario, no hago nada
+    if (isset($_SESSION["session_ID"]) && $_SESSION["session_ID"] == $usuario["ID"]) {
+        return false; // Sesión ya activa para este usuario
+    }
+
+    // Limpio la sesión por si hubiera datos de otro usuario
+    $_SESSION = [];
+
+    // Guardo datos de usuario en la sesión
+    $_SESSION["session_ID"] = $usuario["ID"];
+    $_SESSION["email"] = $usuario['Email'];
+
+    return true; // Sesión creada o actualizada
+}
+
+
+}
+
+
+
 
 ?>

@@ -14,7 +14,7 @@ class MailService {
         $this->mail = new PHPMailer(true);  // Línea 9, si falla aquí, puede ser porque PHPMailer no está cargado
     }
     
-   public function enviarRecuperacion($email, $nombre, $token) {
+   public function enviarRecuperacion($email, $nombre, $token, $mensaje1, $mensaje2) {
     try {
         
         $this->mail->isSMTP();
@@ -29,8 +29,7 @@ class MailService {
         $this->mail->setFrom('mnjtecno@tallerphp.uy', 'MNJ Tecno');
         $this->mail->addAddress($email, $nombre);
 
-        $mensaje1 = "Recuperación de contraseña";
-        $mensaje2 = "Hola $nombre,\n\nEste es el token para recuperar su Password $token\n\nSaludos,\nMNJ Tecno";
+        
 
 
         $this->mail->Subject = $mensaje1;
@@ -38,14 +37,14 @@ class MailService {
 
 
         $this->mail->send();
-          echo json_encode("Correo enviado a $email");
-         echo json_encode(["LLEGUE POR ACA LOS DATOS SON: $email Y TAMBIEN $nombre"]);
         return true;
     } catch (Exception $e) {
         echo json_encode("Error al enviar correo: " . $this->mail->ErrorInfo);
         return false;
     }
 }
+
+
 
 
 }

@@ -62,7 +62,6 @@ if ($user && isset($user["ID"])) {
     if (strtolower($rol) === "cliente") {
         $ok = $this->ConexionconCliente($id);
         if ($ok) {
-          
             return true;
         } else {
         
@@ -74,6 +73,37 @@ if ($user && isset($user["ID"])) {
 
 }
 
+
+ public function darBajaUsuario($usuario){
+    $valor = 0;
+    $stmt = $this->conn->prepare("UPDATE Usuario SET Activo = ? WHERE ID = ?");
+     $stmt->bind_param("ii", $valor,$usuario["ID"]);
+    $r = $stmt->execute();
+    return $r;
+
+ }
+
+
+ public function clienteActivo($usuario){
+
+     $stmt = $this->conn->prepare("SELECT Activo FROM Usuario WHERE ID = ?");
+    $stmt->bind_param("i", $usuario["ID"]);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        return false;
+    }
+
+    $stmt->bind_result($activo);
+    $stmt->store_result();
+
+    if ($stmt->fetch() && $activo == 1) {
+        $stmt->close();
+        return true;
+    }
+
+    $stmt->close();
+    return false;
+}
 
  public function ConexionconCliente($id){
     $stmt = $this->conn->prepare("INSERT INTO Cliente (ID , URL_Imagen ,tokenrecuperacion) VALUES (?, null, 0)");
@@ -140,6 +170,9 @@ if ($user && isset($user["ID"])) {
     $id = $user["ID"];
     }
 
+if ($user && isset($user["Nombre"])) {
+    $nombre = $user["Nombre"];
+    }
 
     $token = bin2hex(random_bytes(16));
   //  $expiracion = date("Y-m-d H:i:s", strtotime("+1 hour"));
@@ -151,14 +184,17 @@ if ($user && isset($user["ID"])) {
     if (!$stmt->execute()) {
         return false;
     };
+
     // Llamo al archivo MailSender
-   $enviado =$mailer->enviarRecuperacion($email, $user['nombre'], $token);
+    $mensaje1 = "Recuperación de contraseña";
+    $mensaje2 = "Hola $nombre,\n\nEste es el token para recuperar su Password $token\n\nSaludos,\nMNJ Tecno";
+
+   $enviado =$mailer->enviarRecuperacion($email, $nombre, $token, $mensaje1, $mensaje2);
     if ($enviado == true) {
-         echo json_encode(["Correo enviado exitosamente"]);
 
         return true;
     } else {
-        echo json_encode(["Correo no enviado exitosamente"]);
+        
         return false;
     
     }
