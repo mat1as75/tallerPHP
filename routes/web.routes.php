@@ -51,4 +51,21 @@ $router->add('DELETE', '/carrito/remover', [$carritoController, 'removeProducto'
 $router->add('DELETE', '/carrito/vaciar', [$carritoController, 'clearCarrito']);
 $router->add('PATCH', '/carrito/actualizar', [$carritoController, 'updateCantidad']);
 
+// RUTAS PARA PRODUCTOS
+$router->add('POST', '/productos', [$productoController, 'create']);
+$router->add('PUT', '/productos/{id}', [$productoController, 'update']);
+$router->add('DELETE', '/productos/{id}', [$productoController, 'delete']);
+$router->add('GET', '/productos', [$productoController, 'getProductos']);
+$router->add('GET', '/productos/{id}', [$productoController, 'getProductoById']);
+$router->add('GET', '/productos/categoria/{id_Categoria}', [$productoController, 'getProductosByCategoria']);
+$router->add('GET', '/productos/marca/{id_Marca}', [$productoController, 'getProductosByMarca']);
+$router->add('PATCH', '/productos/{id}/stock', [$productoController, 'updateStock']);
+
+// RUTAS PARA CATEGORÍAS
+$router->add('POST', '/categorias', [$categoriaController, 'create']);
+$router->add('PUT', '/categorias/{id}', [$categoriaController, 'update']);
+$router->add('DELETE', '/categorias/{id}', [$categoriaController, 'delete']);
+$router->add('GET', '/categorias', [$categoriaController, 'getCategorias']);
+$router->add('GET', '/categorias/{id}', [$categoriaController, 'getCategoriaById']);
+
 ?>
