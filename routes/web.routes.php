@@ -5,6 +5,8 @@ include_once __DIR__ . '/../src/controllers/ProductoPedidoController.php';
 include_once __DIR__ . '/../src/controllers/DatosEnvioController.php';
 include_once __DIR__ . '/../src/controllers/MarcaController.php';
 include_once __DIR__ . '/../src/controllers/CarritoController.php';
+include_once __DIR__ . '/../src/controllers/ProductoController.php';
+include_once __DIR__ . '/../src/controllers/CategoriaController.php';
 
 $usuarioController = new UsuarioController();
 $pedidoController = new PedidoController();
@@ -12,6 +14,8 @@ $productoPedidoController = new ProductoPedidoController();
 $datosEnvioController = new DatosEnvioController();
 $marcaController = new MarcaController();
 $carritoController = new CarritoController();
+$productoController = new ProductoController();
+$categoriaController = new CategoriaController();
 
 // RUTAS PARA USUARIOS
 $router->add('GET', '/usuarios', [$usuarioController, 'getUsuarios']);
