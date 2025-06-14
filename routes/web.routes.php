@@ -44,7 +44,8 @@ $router->add('GET', '/marcas', [$marcaController, 'getMarcas']);
 $router->add('POST', '/marcas', [$marcaController, 'create']);
 
 // RUTAS PARA CARRITO
-$router->add('GET', '/carrito/{id_usuario}', [$carritoController, 'getCarrito']);
+$router->add('GET', '/carrito/{ID_Cliente}', [$carritoController, 'getCarrito']);
+$router->add('GET', '/carritoDetallado/{ID_Cliente}', [$carritoController, 'getCarritoDetallado']);
 $router->add('POST', '/carrito/agregar', [$carritoController, 'addProducto']);
 $router->add('DELETE', '/carrito/remover', [$carritoController, 'removeProducto']);
 $router->add('DELETE', '/carrito/vaciar', [$carritoController, 'clearCarrito']);

@@ -11,18 +11,56 @@ class CarritoRepository
         $this->conn = $db->connect();
     }
 
-    // Obtener el carrito de un usuario   
-    public function getCarrito($id_usuario)
+    // Obtener el carrito de un cliente   
+    public function getCarrito($ID_Cliente)
     {
         try {
-            $stmt = $this->conn->prepare("SELECT * FROM carrito WHERE id_usuario = ?");
-            $stmt->bind_param("i", $id_usuario);
+            $stmt = $this->conn->prepare("SELECT * FROM Carrito WHERE ID_Cliente = ?");
+            $stmt->bind_param("i", $ID_Cliente);
             $stmt->execute();
             $result = $stmt->get_result();
             $carrito = [];
+
             while ($row = $result->fetch_assoc()) {
                 $carrito[] = $row;
             }
+
+            $stmt->close();
+            return $carrito;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    // Obtener el carrito detallado de un cliente   
+    public function getCarritoDetallado($ID_Cliente)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM Carrito WHERE ID_Cliente = ?");
+            $stmt->bind_param("i", $ID_Cliente);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $carrito = [];
+
+            while ($row = $result->fetch_assoc()) {
+                $ID_Producto = $row['ID_Producto'];
+                $Cantidad = $row['Cantidad'];
+
+                // Obtener datos del producto
+                $stmtProducto = $this->conn->prepare("SELECT ID AS ID_Producto, Nombre, Precio, Descripcion, URL_Imagen FROM Producto WHERE ID = ?");
+                $stmtProducto->bind_param("i", $ID_Producto);
+                $stmtProducto->execute();
+                $resProducto = $stmtProducto->get_result();
+                $producto = $resProducto->fetch_assoc();
+                $stmtProducto->close();
+
+                if ($producto) {
+                    // Añadir la cantidad al resultado del producto
+                    $producto['Cantidad'] = $Cantidad;
+                    $carrito[] = $producto;
+                }
+            }
+
             $stmt->close();
             return $carrito;
         } catch (Exception $e) {
