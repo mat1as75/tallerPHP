@@ -245,19 +245,11 @@ class UsuarioController
         }
     }
 
-    public function todastuscompras()
+    public function todastuscompras($id)
     {
-        $input = json_decode(file_get_contents("php://input"), true);
-
-        $email = trim($input["email"]);
-
-        if (!isset($input['email'])) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Falta email"]);
-            return;
-        }
-
-        $usr = $this->usuario->buscarUsuarioporMail($email);
+    
+       
+        $usr = $this->usuario->getUsuarioById($id);
 
         if ($usr == null) {
             http_response_code(400);
@@ -265,15 +257,15 @@ class UsuarioController
             return false;
         }
 
-        $compras = $this->usuario->comprasRealizadas($usr["ID"]);
+        $pedidos = $this->usuario->comprasRealizadas($usr["ID"]);
 
-        if ($compras == null) {
+        if ($pedidos == null) {
             http_response_code(400);
             echo json_encode(["Mensaje" => "El usuario no tiene compras"]);
             return false;
         } else {
             http_response_code(200);
-            echo json_encode(["Compras:" => $compras]);
+            echo json_encode(["pedidos" => $pedidos]);
         }
     }
 
@@ -399,6 +391,59 @@ class UsuarioController
 
         return true; // Sesión creada o actualizada
     }
+
+    public function cambiopassdesdeDetalles(){
+
+         $input = json_decode(file_get_contents("php://input"), true);
+
+
+
+        if (!isset($input['email']) || !isset($input['password']) || !isset($input['nuevapass'])) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "Falta algun dato"]);
+            return;
+        }
+
+        $email  = $input["email"];
+        $password = $input["password"];
+        $nuevapass = $input["nuevapass"];
+
+
+        $usuario = $this->usuario->buscarUsuarioporMail($email);
+
+        if ($usuario==null){
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "Usuario no encontrado"]);
+            return;
+        }
+
+        if (!password_verify($password, $usuario["Contrasena"])) {
+        http_response_code(400);
+        echo json_encode(["Mensaje" => "El password actual no coincide"]);
+        return;
+        }
+
+
+        $check = $this->usuario->NuevaPass($usuario,$nuevapass);
+
+        if ($check){
+            http_response_code(200);
+            echo json_encode(["Mensaje"=> "Password Actualizada"]);
+            return;
+        }else{
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "No se pudo actualizar la Password"]);
+
+        }
+
+
+
+    }
+
+
+
+
+
 }
 
 ?>
