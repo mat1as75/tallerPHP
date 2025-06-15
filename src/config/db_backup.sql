@@ -38,9 +38,9 @@ LOCK TABLES `Administrador` WRITE;
 /*!40000 ALTER TABLE `Administrador` DISABLE KEYS */;
 INSERT INTO `Administrador` VALUES
 (1),
-(4),
-(7),
-(10);
+(3),
+(5),
+(9);
 /*!40000 ALTER TABLE `Administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,9 +170,9 @@ CREATE TABLE `Cliente` (
 LOCK TABLES `Cliente` WRITE;
 /*!40000 ALTER TABLE `Cliente` DISABLE KEYS */;
 INSERT INTO `Cliente` VALUES
-(3, NULL, NULL),
-(6, NULL, NULL),
-(9, NULL, NULL);
+(2, NULL, NULL),
+(4, NULL, NULL),
+(6, NULL, NULL);
 /*!40000 ALTER TABLE `Cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
