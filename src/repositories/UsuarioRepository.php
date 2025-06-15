@@ -26,7 +26,7 @@ class UsuarioRepository
 
     public function getUsuarioById($id)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM Usuario WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM Usuario WHERE ID = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -102,7 +102,8 @@ class UsuarioRepository
 
     public function ConexionconCliente($id)
     {
-        $stmt = $this->conn->prepare("INSERT INTO Cliente (ID ,tokenrecuperacion) VALUES (?, 0)");
+        $stmt = $this->conn->prepare("INSERT INTO Cliente (ID  ,tokenrecuperacion) VALUES (?, 0)");
+
         $stmt->bind_param("s", $id);
         $success = $stmt->execute();
 
@@ -314,6 +315,26 @@ class UsuarioRepository
         }
 
         return $compras;
+    }
+
+    public function NuevaPass($usuario, $nuevapass){
+
+
+        // Hashear la nueva contraseña
+        $hash = password_hash($nuevapass, PASSWORD_DEFAULT);
+        // Guarda la nueva contrasenia
+        $sql = "UPDATE Usuario SET Contrasena = ? WHERE ID = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('si', $hash, $usuario['ID']);
+        $stmt->execute();
+
+        if ($stmt->affected_rows === 1) {
+            return true;
+        } else {
+            // Para poder saber lo que paso en caso de error
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
     }
 
 }

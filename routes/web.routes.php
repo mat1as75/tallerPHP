@@ -25,9 +25,10 @@ $router->add('POST', '/inisiarsesion', [$usuarioController, 'iniciarSecion']);
 $router->add('PUT', '/recuperarpassword', [$usuarioController, 'RecuperarPassword']);
 $router->add('PUT', '/cambiopassword', [$usuarioController, 'CambioPassword']);
 $router->add('POST', '/verificotoken', [$usuarioController, 'VerificoToken']);
-$router->add('GET', '/historialcompras', [$usuarioController, 'todastuscompras']);
+$router->add('GET', '/historialcompras/{id}', [$usuarioController, 'todastuscompras']);
 $router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacuenta']);
-$router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
+$router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);   
+$router->add('PUT','/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);
