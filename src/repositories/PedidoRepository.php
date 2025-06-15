@@ -76,15 +76,20 @@ class PedidoRepository
         $this->conn->begin_transaction();
 
         try {
-            // Insertar en DatosEnvio
-            $stmtEnvio = $this->conn->prepare("INSERT INTO DatosEnvio (TelefonoCliente, DireccionCliente, DepartamentoCliente, CiudadCliente) VALUES (?, ?, ?, ?)");
-            $stmtEnvio->bind_param("ssss", $datosEnvio['telefonoCliente'], $datosEnvio['direccionCliente'], $datosEnvio['departamentoCliente'], $datosEnvio['ciudadCliente']);
-            $stmtEnvio->execute();
-            if ($stmtEnvio->error) {
-                throw new Exception('Error al crear datos de envío: ' . $stmtEnvio->error);
-            }
-            $id_datosEnvio = $this->conn->insert_id; // Obtener el ID del último registro insertado
-            $stmtEnvio->close();
+            // Chequear existencia de DatosEnvio
+            $stmtCheck = $this->conn->prepare("SELECT ID FROM DatosEnvio WHERE TelefonoCliente = ? AND DireccionCliente = ? AND DepartamentoCliente = ? AND CiudadCliente = ?");
+            $stmtCheck->bind_param(
+                "ssss",
+                $datosEnvio['telefonoCliente'],
+                $datosEnvio['direccionCliente'],
+                $datosEnvio['departamentoCliente'],
+                $datosEnvio['ciudadCliente']
+            );
+            $stmtCheck->execute();
+            $result = $stmtCheck->get_result();
+            $row = $result->fetch_assoc();
+            $id_datosEnvio = $row['ID'];
+            $stmtCheck->close();
 
             // Insertar en Pedido
             $stmtPedido = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");

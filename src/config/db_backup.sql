@@ -40,7 +40,7 @@ INSERT INTO `Administrador` VALUES
 (1),
 (3),
 (5),
-(9);
+(7);
 /*!40000 ALTER TABLE `Administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
