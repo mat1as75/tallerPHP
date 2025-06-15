@@ -13,12 +13,28 @@ class ProductoController
     public function create()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        if (!$this->validarCampos($data, ['Nombre', 'Descripcion', 'Precio',
-        'Stock', 'Marca', 'URL_Imagen', 'ID_Categoria'])) return;
+        if (
+            !$this->validarCampos($data, [
+                'Nombre',
+                'Descripcion',
+                'Precio',
+                'Stock',
+                'ID_Marca',
+                'URL_Imagen',
+                'ID_Categoria'
+            ])
+        )
+            return;
 
-        $resultado = $this->producto->create($data['Nombre'],
-        $data['Descripcion'], $data['Precio'], $data['Stock'],
-        $data['Marca'], $data['URL_Imagen'], $data['Categoria']);
+        $resultado = $this->producto->create(
+            $data['Nombre'],
+            $data['Descripcion'],
+            $data['Precio'],
+            $data['Stock'],
+            $data['ID_Marca'],
+            $data['URL_Imagen'],
+            $data['ID_Categoria']
+        );
         if (!$resultado) {
             http_response_code(500);
             echo json_encode(["error" => "Error al crear el producto"]);
@@ -29,15 +45,33 @@ class ProductoController
 
     public function update($id)
     {
-        if (!$this->validarId($id)) return;
+        if (!$this->validarId($id))
+            return;
 
         $data = json_decode(file_get_contents("php://input"), true);
-        if (!$this->validarCampos($data, ['Nombre', 'Descripcion', 'Precio',
-        'Stock', 'Marca', 'URL_Imagen', 'ID_Categoria'])) return;
+        if (
+            !$this->validarCampos($data, [
+                'Nombre',
+                'Descripcion',
+                'Precio',
+                'Stock',
+                'ID_Marca',
+                'URL_Imagen',
+                'ID_Categoria'
+            ])
+        )
+            return;
 
-        $resultado = $this->producto->update($id, $data['Nombre'],
-        $data['Descripcion'], $data['Precio'], $data['Stock'],
-        $data['Marca'], $data['URL_Imagen'], $data['ID_Categoria']);
+        $resultado = $this->producto->update(
+            $id,
+            $data['Nombre'],
+            $data['Descripcion'],
+            $data['Precio'],
+            $data['Stock'],
+            $data['ID_Marca'],
+            $data['URL_Imagen'],
+            $data['ID_Categoria']
+        );
 
         if (!$resultado) {
             http_response_code(500);
@@ -50,7 +84,8 @@ class ProductoController
 
     public function delete($id)
     {
-        if (!$this->validarId($id)) return;
+        if (!$this->validarId($id))
+            return;
 
         $resultado = $this->producto->delete($id);
         if (!$resultado) {
@@ -70,7 +105,8 @@ class ProductoController
 
     public function getProductoById($id)
     {
-        if (!$this->validarId($id)) return;
+        if (!$this->validarId($id))
+            return;
 
         $producto = $this->producto->getProductoById($id);
         if (!$producto) {
@@ -83,21 +119,24 @@ class ProductoController
 
     public function getProductosByCategoria($id_categoria)
     {
-        if (!$this->validarId($id_categoria)) return;
+        if (!$this->validarId($id_categoria))
+            return;
         $result = $this->producto->getProductosByCategoria($id_categoria);
         echo json_encode($result);
     }
 
     public function getProductosByMarca($id_marca)
     {
-        if (!$this->validarId($id_marca)) return;
+        if (!$this->validarId($id_marca))
+            return;
         $result = $this->producto->getProductosByMarca($id_marca);
         echo json_encode($result);
     }
 
     public function updateStock($id)
     {
-        if (!$this->validarId($id)) return;
+        if (!$this->validarId($id))
+            return;
 
         $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['nuevo_stock']) || !is_numeric($data['nuevo_stock'])) {

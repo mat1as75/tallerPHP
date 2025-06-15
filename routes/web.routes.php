@@ -63,7 +63,7 @@ $router->add('GET', '/productos', [$productoController, 'getProductos']);
 $router->add('GET', '/productos/{id}', [$productoController, 'getProductoById']);
 $router->add('GET', '/productos/categoria/{id_Categoria}', [$productoController, 'getProductosByCategoria']);
 $router->add('GET', '/productos/marca/{id_Marca}', [$productoController, 'getProductosByMarca']);
-$router->add('PATCH', '/productos/{id}/stock', [$productoController, 'updateStock']);
+$router->add('PATCH', '/productos/{id}', [$productoController, 'updateStock']);
 
 // RUTAS PARA CATEGORÍAS
 $router->add('POST', '/categorias', [$categoriaController, 'create']);

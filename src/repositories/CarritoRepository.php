@@ -145,6 +145,7 @@ class CarritoRepository
                 return false;
             }
             $stmt->close();
+            //echo "aca";
             return true;
         } catch (Exception $e) {
             return false;
