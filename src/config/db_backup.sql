@@ -45,6 +45,37 @@ INSERT INTO `Administrador` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Gestor`
+--
+
+DROP TABLE IF EXISTS `Gestor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Gestor` (
+  `ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  `P_Producto` tinyint(1) DEFAULT NULL,
+  `P_Inventario` tinyint(1) DEFAULT NULL,
+  `P_Pedidos` tinyint(1) DEFAULT NULL,
+  `P_Soporte` tinyint(1) DEFAULT NULL,
+  CONSTRAINT `Gestor_ibfk_1` FOREIGN KEY (`ID`) REFERENCES `Usuario` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Administrador`
+--
+
+LOCK TABLES `Gestor` WRITE;
+/*!40000 ALTER TABLE `Gestor` DISABLE KEYS */;
+INSERT INTO `Gestor` VALUES
+(8, 0, 1, 0, 0),
+(9, 1, 0, 1, 0),
+(10, 0, 1, 1, 1);
+/*!40000 ALTER TABLE `Gestor` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Carrito`
 --
 
@@ -225,7 +256,7 @@ CREATE TABLE `Pedido` (
   `ID_Cliente` int(11) DEFAULT NULL,
   `ID_DatosEnvio` int(11) DEFAULT NULL,
   `Total` decimal(10,2) DEFAULT NULL,
-  `Estado` enum('pendiente','pago','entregado','cancelado') DEFAULT NULL,
+  `Estado` enum('pendiente','procesado','enviado','entregado','cancelado') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   KEY `ID_Cliente` (`ID_Cliente`),
@@ -378,13 +409,16 @@ CREATE TABLE `Usuario` (
 LOCK TABLES `Usuario` WRITE;
 /*!40000 ALTER TABLE `Usuario` DISABLE KEYS */;
 INSERT INTO `Usuario` VALUES
-(1,'Juan','Gómez','juan.gómez@correo.com','pass0',1,'administrador','2025-05-19 18:59:40'),
+(1,'Juan','Gómez','juan.gómez@correo.com','pass1',1,'administrador','2025-05-19 18:59:40'),
 (2,'Pedro','López','pedro.lópez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
 (3,'Lucía','Rodríguez','lucía.rodríguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
-(4,'Sofía','Martínez','sofía.martínez@correo.com','pass5',1,'cliente','2025-05-19 18:59:40'),
-(5,'Diego','Díaz','diego.díaz@correo.com','pass6',1,'administrador','2025-05-19 18:59:40'),
-(6,'Carlos','Álvarez','carlos.álvarez@correo.com','pass8',0,'cliente','2025-05-19 18:59:40'),
-(7,'Valeria','Romero','valeria.romero@correo.com','pass9',0,'administrador','2025-05-19 18:59:40');
+(4,'Sofía','Martínez','sofía.martínez@correo.com','pass4',1,'cliente','2025-05-19 18:59:40'),
+(5,'Diego','Díaz','diego.díaz@correo.com','pass5',1,'administrador','2025-05-19 18:59:40'),
+(6,'Carlos','Álvarez','carlos.álvarez@correo.com','pass6',0,'cliente','2025-05-19 18:59:40'),
+(7,'Valeria','Romero','valeria.romero@correo.com','pass7',0,'administrador','2025-05-19 18:59:40'),
+(8,'Ana','Pérez','ana.pérez@correo.com','pass8',1,'gestor','2025-05-19 18:59:40'),
+(9,'Marcos','Fernández','marcos.fernández@correo.com','pass9',1,'gestor','2025-05-19 18:59:40'),
+(10,'Elena','Romero','elena.romero@correo.com','pass10',1,'gestor','2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 
