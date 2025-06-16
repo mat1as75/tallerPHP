@@ -88,8 +88,11 @@ class UsuarioRepository
             return false;
         }
 
-        $stmt->bind_result($activo);
-        $stmt->store_result();
+      
+         $stmt->store_result();
+
+         $activo = null;
+         $stmt->bind_result($activo);
 
         if ($stmt->fetch() && $activo == 1) {
             $stmt->close();
@@ -172,7 +175,7 @@ class UsuarioRepository
         $mensaje1 = "Recuperación de contraseña";
         $mensaje2 = "Hola $nombre,\n\nEste es el token para recuperar su Password $token\n\nSaludos,\nMNJ Tecno";
 
-        $enviado = $mailer->enviarRecuperacion($email, $nombre, $token, $mensaje1, $mensaje2);
+        $enviado = $mailer->EnvioMail($email, $nombre, $token, $mensaje1, $mensaje2);
         if ($enviado == true) {
             return true;
         } else {
