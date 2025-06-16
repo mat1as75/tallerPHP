@@ -16,7 +16,7 @@ class MailService
         $this->mail = new PHPMailer(true);  // Línea 9, si falla aquí, puede ser porque PHPMailer no está cargado
     }
 
-    public function enviarRecuperacion($email, $nombre, $token, $mensaje1, $mensaje2)
+    public function EnvioMail($email, $nombre, $token, $mensaje1, $mensaje2)
     {
         try {
             $this->mail->isSMTP();
