@@ -46,7 +46,20 @@ class UsuarioController
         $rol = trim($input['Rol']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Email no válido"]);
+            echo json_encode(["Mensaje" => "Email no válido"]);
+            return;
+        }
+
+        $usr = $this->usuario->buscarUsuarioporMail($email);
+
+        if ($usr) {
+            if($usr["Activo"] === "0") {
+                http_response_code(400);
+                echo json_encode(["Mensaje"=> "El usuario esta dado de baja, debe mandar un email"]);
+                return;
+            }
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "Usuario ya registrado"]);
             return;
         }
 
@@ -59,18 +72,18 @@ class UsuarioController
 
             if ($rol == "cliente") {
                 http_response_code(201);
-                return json_encode(["mensaje" => "Cliente creado con éxito "]);
+                return json_encode(["Mensaje" => "Cliente creado con éxito "]);
                 //return;
             } else if ($rol == 'Administrador') {
                 http_response_code(201);
-                echo json_encode(['mensaje' => 'Administrador Creado con exito']);
+                echo json_encode(['Mensaje' => 'Administrador Creado con exito']);
             } else {
                 http_response_code(201);
-                echo json_encode(['mensaje' => 'Usuario creado con exito']);
+                echo json_encode(['Mensaje' => 'Usuario creado con exito']);
             }
         } else {
             http_response_code(500);
-            echo json_encode(["mensaje" => "Error al crear el usuario"]);
+            echo json_encode(["Mensaje" => "Error al crear el usuario"]);
         }
     }
 
@@ -79,8 +92,8 @@ class UsuarioController
         $input = json_decode(file_get_contents("php://input"), true);
 
         if (!isset($input['nombre'], $input['email'], $input['password'])) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Faltan datos requeridos"]);
+            http_response_code(204);
+            echo json_encode(["Mensaje" => "Faltan datos requeridos"]);
             return;
         }
 
@@ -91,7 +104,7 @@ class UsuarioController
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Email no válido"]);
+            echo json_encode(["Mensaje" => "Email no válido"]);
             return;
         }
 
@@ -99,10 +112,10 @@ class UsuarioController
 
         if ($success) {
             http_response_code(200);
-            echo json_encode(["mensaje" => "Usuario actualizado con éxito"]);
+            echo json_encode(["Mensaje" => "Usuario actualizado con éxito"]);
         } else {
             http_response_code(500);
-            echo json_encode(["mensaje" => "Error al actualizar el usuario"]);
+            echo json_encode(["Mensaje" => "Error al actualizar el usuario"]);
         }
     }
 
@@ -111,10 +124,10 @@ class UsuarioController
         $success = $this->usuario->delete($email);
 
         if ($success) {
-            echo json_encode(["mensaje" => "Usuario eliminado con éxito"]);
+            echo json_encode(["Mensaje" => "Usuario eliminado con éxito"]);
         } else {
             http_response_code(500);
-            echo json_encode(["mensaje" => "Error al eliminar el usuario"]);
+            echo json_encode(["Mensaje" => "Error al eliminar el usuario"]);
         }
     }
 
@@ -124,8 +137,8 @@ class UsuarioController
         $input = json_decode(file_get_contents("php://input"), true);
 
         if (!isset($input['email'], $input['password'])) {
-            http_response_code(400);
-            echo json_encode(["mensaje" => "Falta email o Password"]);
+            http_response_code(204);
+            echo json_encode(["Mensaje" => "Falta email o Password"]);
             return;
         }
 
@@ -136,7 +149,7 @@ class UsuarioController
         //VERIFICO EXISTE USUARIO 
         if (!$usuario) {
             http_response_code(401);
-            echo json_encode(["mensaje" => "Usuario no encontrado"]);
+            echo json_encode(["Mensaje" => "Usuario no encontrado"]);
             return;
         }
 
@@ -154,7 +167,7 @@ class UsuarioController
         // Aquí va la verificación de la contraseña
         if (!password_verify($password, $contra)) {
             http_response_code(401);
-            echo json_encode(["mensaje" => "Contraseña incorrecta"]);
+            echo json_encode(["Mensaje" => "Contraseña incorrecta"]);
             return;
         }
 
@@ -171,7 +184,7 @@ class UsuarioController
 
         if (!isset($input['email'])) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Falta email"]);
+            echo json_encode(["Mensaje" => "Falta email"]);
             return;
         }
 
@@ -180,16 +193,16 @@ class UsuarioController
 
         if (!$usuario) {
             http_response_code(401);
-            echo json_encode(["mensaje" => "email no registrado"]);
+            echo json_encode(["Mensaje" => "email no registrado"]);
             return;
         }
 
         if ($this->usuario->enviomailverificado($email)) {
             http_response_code(200);
-            echo json_encode(["mensaje" => "Mail de verificacion enviado"]);
+            echo json_encode(["Mensaje" => "Mail de verificacion enviado"]);
         } else {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Error al enviar el mail"]);
+            echo json_encode(["Mensaje" => "Error al enviar el mail"]);
         }
     }
 
@@ -200,27 +213,20 @@ class UsuarioController
 
         if (!isset($input['token']) || !isset($input['password'])) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Falta token o password"]);
+            echo json_encode(["Mensaje" => "Falta token o password"]);
             return;
         }
 
         $token = trim($input['token']);
         $nuevaPass = trim($input['password']);
 
-        //$otrotoken = $usuario['token'];
-
-        /*if ($otrotoken != $token) {
-            http_response_code(400);
-            echo json_encode(['mensaje'=> 'El Token no coincide'. $token. 'EL OTRO TOKE =>' . $otrotoken]);
-        }*/
-
         if ($this->usuario->AtualizoPassword($token, $nuevaPass)) {
             http_response_code(200);
-            echo json_encode(['mensaje' => 'Contrasenia Actualizada con exito']);
+            echo json_encode(['Mensaje' => 'Contrasenia Actualizada con exito']);
             return true;
         } else {
             http_response_code(400);
-            echo json_encode(['mensaje' => 'Contrasenia Actualizada con exito']);
+            echo json_encode(['Mensaje' => 'Contrasenia Actualizada con exito']);
             return false;
         }
     }
@@ -236,11 +242,11 @@ class UsuarioController
 
         if ($verifico == null) {
             http_response_code(400);
-            echo json_encode(['valido' => false, 'mensaje' => 'El token no es válido']);
+            echo json_encode(['valido' => false, 'Mensaje' => 'El token no es válido']);
             return false;
         } else {
             http_response_code(200);
-            echo json_encode(['valido' => true, 'mensaje' => 'El token es válido']);
+            echo json_encode(['valido' => true, 'Mensaje' => 'El token es válido']);
             return true;
         }
     }
@@ -400,7 +406,7 @@ class UsuarioController
 
         if (!isset($input['email']) || !isset($input['password']) || !isset($input['nuevapass'])) {
             http_response_code(400);
-            echo json_encode(["mensaje" => "Falta algun dato"]);
+            echo json_encode(["Mensaje" => "Falta algun dato"]);
             return;
         }
 
