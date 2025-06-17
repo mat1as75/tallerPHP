@@ -27,8 +27,8 @@ $router->add('PUT', '/cambiopassword', [$usuarioController, 'CambioPassword']);
 $router->add('POST', '/verificotoken', [$usuarioController, 'VerificoToken']);
 $router->add('GET', '/historialcompras/{id}', [$usuarioController, 'todastuscompras']);
 $router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacuenta']);
-$router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);   
-$router->add('PUT','/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
+$router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
+$router->add('PUT', '/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);
@@ -37,6 +37,7 @@ $router->add('GET', '/pedidos/cliente/{id}', [$pedidoController, 'getPedidoByCli
 $router->add('POST', '/pedidos', [$pedidoController, 'create']);
 $router->add('PATCH', '/pedidos/{id}', [$pedidoController, 'updateStatus']);
 $router->add('DELETE', '/pedidos/{id}', [$pedidoController, 'cancel']);
+$router->add('POST', '/enviarMail', [$pedidoController, 'sendEmailConfirmation']);
 
 // RUTAS PARA PRODUCTOS PEDIDOS
 $router->add('GET', '/productos/pedido/{id_pedido}', [$productoPedidoController, 'getProductoPedidoByIdPedido']);
@@ -51,6 +52,7 @@ $router->add('POST', '/marcas', [$marcaController, 'create']);
 // RUTAS PARA CARRITO
 $router->add('GET', '/carrito/{ID_Cliente}', [$carritoController, 'getCarrito']);
 $router->add('GET', '/carritoDetallado/{ID_Cliente}', [$carritoController, 'getCarritoDetallado']);
+$router->add('GET', '/carrito/cantidadProductos/{ID_Cliente}', [$carritoController, 'getQuantityProductsCart']);
 $router->add('POST', '/carrito/agregar', [$carritoController, 'addProducto']);
 $router->add('DELETE', '/carrito/remover', [$carritoController, 'removeProducto']);
 $router->add('DELETE', '/carrito/vaciar', [$carritoController, 'clearCarrito']);

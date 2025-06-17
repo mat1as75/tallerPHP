@@ -68,6 +68,24 @@ class CarritoRepository
         }
     }
 
+    public function getCountProducts($ID_Cliente)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) AS count FROM Carrito WHERE ID_Cliente = ?");
+            $stmt->bind_param("i", $ID_Cliente);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($row = $result->fetch_assoc()) {
+                return ['COUNT' => (int) $row['count']];
+            } else {
+                return ['COUNT' => 0];
+            }
+        } catch (Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
     // Agregar un producto al carrito 
     public function addProducto($ID_Cliente, $ID_Producto, $Cantidad)
     {

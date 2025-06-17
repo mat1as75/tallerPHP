@@ -16,7 +16,7 @@ class MailService
         $this->mail = new PHPMailer(true);  // Línea 9, si falla aquí, puede ser porque PHPMailer no está cargado
     }
 
-    public function EnvioMail($email, $nombre, $token, $mensaje1, $mensaje2)
+    public function EnvioMail($email, $nombre, $token, $mensaje1, $mensaje2, $html)
     {
         try {
             $this->mail->isSMTP();
@@ -33,6 +33,9 @@ class MailService
 
             $this->mail->Subject = $mensaje1;
             $this->mail->Body = $mensaje2;
+            $this->mail->isHTML($html);
+            $this->mail->CharSet = 'UTF-8';
+            $this->mail->Encoding = 'base64';
 
             $this->mail->send();
             return true;

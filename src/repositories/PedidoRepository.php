@@ -26,7 +26,9 @@ class PedidoRepository
     public function getPedidos()
     {
         $sql = "SELECT * FROM Pedido";
-        $result = mysqli_query($this->conn, $sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $pedidos = [];
         while ($row = $result->fetch_assoc()) {
             $pedidos[] = $row;
@@ -37,20 +39,23 @@ class PedidoRepository
     // Obtener un pedido por ID
     public function getPedidoById($id)
     {
-        $sql = "SELECT * FROM Pedido WHERE ID = $id";
-        $result = mysqli_query($this->conn, $sql);
-        $pedidos = [];
-        while ($row = $result->fetch_assoc()) {
-            $pedidos[] = $row;
-        }
-        return $pedidos;
+        $sql = "SELECT * FROM Pedido WHERE ID = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->fetch_assoc();
     }
 
     // Obtener pedidos por cliente
     public function getPedidoByCliente($id_cliente)
     {
-        $sql = "SELECT * FROM Pedido WHERE ID_Cliente = $id_cliente";
-        $result = mysqli_query($this->conn, $sql);
+        $sql = "SELECT * FROM Pedido WHERE ID_Cliente = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id_cliente);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $pedidos = [];
         while ($row = $result->fetch_assoc()) {
             $pedidos[] = $row;
@@ -119,7 +124,7 @@ class PedidoRepository
 
             // Commit transaction
             $this->conn->commit();
-            return json_encode(['mensaje' => 'Pedido creado correctamente', 'ID_Pedido' => $id_pedido]);
+            return json_encode(['ID_Pedido' => $id_pedido]);
 
         } catch (Exception $e) {
             $this->conn->rollback(); // Revertir en caso de error
@@ -222,6 +227,151 @@ class PedidoRepository
         } else {
             return json_encode(['error' => 'No se han agregado productos al pedido']);
         }
+    }
+
+    public function sendEmailOrderConfirmation($data)
+    {
+        $mailHelper = new MailService();
+
+        $email = $data['Email'];
+        $nombreCliente = $data['Nombre'];
+        $idPedido = $data['ID_Pedido'];
+        $montoTotal = $data['Total'];
+        $metodoPago = $data['MetodoPago'];
+        $productos = $data['productos'];
+        $fechaPedido = $data['FechaPedido'];
+
+        switch ($metodoPago) {
+            case 'creditCard':
+                $metodoPago = "Tarjeta de Crédito";
+                break;
+            case 'bankTransfer':
+                $metodoPago = "Transferencia Bancaria";
+                break;
+            case 'cashPayment':
+                $metodoPago = "Depósito en Redes de Cobranza";
+                break;
+        }
+
+        $listaProductos = "<ul>";
+        foreach ($productos as $producto) {
+            $nombre = htmlspecialchars($producto['Nombre']);
+            $cantidad = intval($producto['Cantidad']);
+            $listaProductos .= "<li>{$nombre} | {$cantidad} unidad" . ($cantidad > 1 ? "es" : "") . "</li>";
+        }
+        $listaProductos .= "</ul>";
+
+        $fechaString = $this->dateString($fechaPedido);
+
+        $msgAsunto = '¡Gracias por tu compra! Confirmación del Pedido #' . $idPedido;
+        $msgCuerpo = "
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                    background-color: #f6f6f6;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 30px auto;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    padding: 30px;
+                }
+                h2 {
+                    color: #15297C;
+                }
+                p {
+                    line-height: 1.6;
+                }
+                .order-summary {
+                    background-color: #f0f4f8;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                }
+                .order-summary ul {
+                    padding-left: 20px;
+                    margin: 0;
+                }
+                .order-summary li {
+                    margin-bottom: 8px;
+                }
+                .footer {
+                    font-size: 12px;
+                    color: #888;
+                    border-top: 1px solid #ddd;
+                    margin-top: 30px;
+                    padding-top: 10px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <h2>¡Gracias por tu compra, {$nombreCliente}!</h2>
+                <p>Te confirmamos que hemos recibido tu pedido <strong>#{$idPedido}</strong> realizado el <strong>{$fechaString}</strong>.</p>
+                <p>Estamos preparando todo para enviártelo lo antes posible.</p>
+
+                <div class='order-summary'>
+                    <h3>Resumen del pedido:</h3>
+                    {$listaProductos}
+                    <p><strong>Total:</strong> {$montoTotal} USD</p>
+                    <p><strong>Método de pago:</strong> {$metodoPago}</p>
+                </div>
+
+                <p>📦 Te notificaremos nuevamente cuando tu pedido esté en camino.</p>
+                <p>Si tenés alguna pregunta, podés responder este correo o visitar nuestro centro de ayuda.</p>
+
+                <p>¡Gracias por confiar en nosotros!</p>
+                <p>Saludos,<br><strong>El equipo de MNJTecno.com</strong></p>
+
+                <div class='footer'>
+                    Este mensaje es una confirmación automática. Por favor, no respondas si no es necesario.
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+
+        return $mailHelper->EnvioMail($email, $nombre, null, $msgAsunto, $msgCuerpo, true);
+    }
+
+    public function getNamesMonth(int $monthNumber): string
+    {
+        $months = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+
+        return $months[$monthNumber] ?? 'Mes invalido';
+    }
+
+    public function dateString(string $fecha): string
+    {
+        $dt = new DateTime($fecha);
+        $dia = $dt->format('j');
+        $mes = $this->getNamesMonth((int) $dt->format('n'));
+        $anio = $dt->format('Y');
+
+        return "$dia de $mes de $anio";
     }
 }
 ?>

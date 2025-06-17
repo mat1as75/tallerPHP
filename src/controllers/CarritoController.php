@@ -24,6 +24,19 @@ class CarritoController
         echo json_encode($carrito);
     }
 
+    // Obtener la cantidad de productos que tiene un carrito de cliente
+    public function getQuantityProductsCart($ID_Cliente)
+    {
+        if (!$ID_Cliente) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Cliente es requerido"]);
+            return;
+        }
+
+        $response = $this->carrito->getCountProducts($ID_Cliente);
+        echo json_encode($response);
+    }
+
 
     // Agregar un producto al carrito
     public function addProducto()

@@ -1,6 +1,6 @@
 <?php
 include_once __DIR__ . '/../../src/repositories/PedidoRepository.php';
-
+include_once __DIR__ . '/../repositories/MailService.php';
 class PedidoController
 {
     private $pedido;
@@ -59,5 +59,28 @@ class PedidoController
     {
         echo json_encode($this->pedido->cancel($id));
     }
+
+    public function sendEmailConfirmation()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!$this->pedido->getPedidoById($data['ID_Pedido'])) {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "El pedido no existe o no se encontro."]);
+        }
+
+        try {
+            $sentMail = $this->pedido->sendEmailOrderConfirmation($data);
+            if (!$sentMail) {
+                http_response_code(400);
+                echo json_encode(["error" => "Error al enviar el correo."]);
+            }
+
+            echo json_encode(["mensaje" => "Correo enviado exitosamente."]);
+        } catch (Exception $e) {
+            return json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
 }
 ?>
