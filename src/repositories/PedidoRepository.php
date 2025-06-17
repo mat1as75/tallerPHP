@@ -119,11 +119,11 @@ class PedidoRepository
 
             // Commit transaction
             $this->conn->commit();
-            return ['mensaje' => 'Pedido creado correctamente', 'ID_Pedido' => $id_pedido];
+            return json_encode(['mensaje' => 'Pedido creado correctamente', 'ID_Pedido' => $id_pedido]);
 
         } catch (Exception $e) {
             $this->conn->rollback(); // Revertir en caso de error
-            return ['error' => $e->getMessage()];
+            return json_encode(['error' => $e->getMessage()]);
         }
     }
 
@@ -135,24 +135,24 @@ class PedidoRepository
         $stmt->execute();
 
         if ($stmt->error)
-            return ['error' => 'Error al actualizar el estado del pedido: ' . $stmt->error];
+            return json_encode(['error' => 'Error al actualizar el estado del pedido: ' . $stmt->error]);
         $stmt->close();
-        return ['mensaje' => 'Estado del pedido actualizado'];
+        return json_encode(['mensaje' => 'Estado del pedido actualizado']);
     }
 
     // Cancelar un pedido
     public function cancel($id)
     {
         if ($this->checkPedidoEntregado($id)) {
-            return ['error' => 'No se puede cancelar un pedido ya entregado'];
+            return json_encode(['error' => 'No se puede cancelar un pedido ya entregado']);
         }
 
         $stmt = $this->conn->prepare("UPDATE Pedido SET Estado = 'cancelado' WHERE ID = ?");
         $stmt->execute([$id]);
         if ($stmt->error) {
-            return ['error' => 'Error al cancelar el pedido: ' . $stmt->error];
+            return json_encode(['error' => 'Error al cancelar el pedido: ' . $stmt->error]);
         }
-        return ['mensaje' => 'Pedido cancelado'];
+        return json_encode(['mensaje' => 'Pedido cancelado']);
     }
 
     // Checkear si el cliente existe
@@ -203,12 +203,12 @@ class PedidoRepository
 
             $this->datosEnvioRepository->create($telefono, $direccion, $deparatamento, $ciudad);
         } else {
-            return ['error' => 'Datos de envío no proporcionados'];
+            return json_encode(['error' => 'Datos de envío no proporcionados']);
         }
 
         // Verifico existencia de Cliente
         if ($this->checkClientePedido($id_cliente) === false) {
-            return ['error' => 'Cliente no encontrado'];
+            return json_encode(['error' => 'Cliente no encontrado']);
         }
 
         // Verifico existencia de Productos
@@ -216,11 +216,11 @@ class PedidoRepository
         if (!empty($productos)) {
             foreach ($productos as $producto) {
                 if (!$this->checkPedidoProducto($producto['id_producto'])) {
-                    return ['error' => 'Producto inválido en el pedido'];
+                    return json_encode(['error' => 'Producto inválido en el pedido']);
                 }
             }
         } else {
-            return ['error' => 'No se han agregado productos al pedido'];
+            return json_encode(['error' => 'No se han agregado productos al pedido']);
         }
     }
 }
