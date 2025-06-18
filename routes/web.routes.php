@@ -14,7 +14,6 @@ $marcaController = new MarcaController();
 $carritoController = new CarritoController();
 
 
-
 // RUTAS PARA USUARIOS
 $router->add('GET', '/usuarios', [$usuarioController, 'getUsuarios']);
 $router->add('GET', '/usuarios/{id}', [$usuarioController, 'getUsuarioById']);
@@ -24,6 +23,14 @@ $router->add('PUT','/recuperarpassword', [$usuarioController,'RecuperarPassword'
 $router->add('PUT','/cambiopassword', [$usuarioController,'CambioPassword']);
 $router->add('POST','/verificotoken', [$usuarioController,'VerificoToken']);
 $router->add('GET','/historialcompras', [$usuarioController,'todastuscompras']);
+
+//RUTAS USUARIO-ADMINISTRADOR
+$router->add('POST', '/buscarUsuarios', [$usuarioController, 'buscarUsuarios']);
+$router->add('POST', '/crearGestor', [$usuarioController, 'crearGestor']);
+$router->add('PUT', '/modificarGestor', [$usuarioController, 'modificarGestor']);
+$router->add('DELETE', '/eliminarGestor', [$usuarioController, 'eliminarGestor']);
+
+
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);
