@@ -17,6 +17,7 @@ $carritoController = new CarritoController();
 $productoController = new ProductoController();
 $categoriaController = new CategoriaController();
 
+
 // RUTAS PARA USUARIOS
 $router->add('GET', '/usuarios', [$usuarioController, 'getUsuarios']);
 $router->add('GET', '/usuarios/{id}', [$usuarioController, 'getUsuarioById']);
@@ -29,6 +30,14 @@ $router->add('GET', '/historialcompras/{id}', [$usuarioController, 'todastuscomp
 $router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacuenta']);
 $router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
 $router->add('PUT', '/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
+
+//RUTAS USUARIO-ADMINISTRADOR
+$router->add('POST', '/buscarUsuarios', [$usuarioController, 'buscarUsuarios']);
+$router->add('POST', '/crearGestor', [$usuarioController, 'crearGestor']);
+$router->add('PUT', '/modificarGestor', [$usuarioController, 'modificarGestor']);
+$router->add('DELETE', '/eliminarGestor', [$usuarioController, 'eliminarGestor']);
+
+
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);

@@ -322,8 +322,6 @@ class UsuarioRepository
 
     public function NuevaPass($usuario, $nuevapass)
     {
-
-
         // Hashear la nueva contraseña
         $hash = password_hash($nuevapass, PASSWORD_DEFAULT);
         // Guarda la nueva contrasenia
@@ -340,6 +338,135 @@ class UsuarioRepository
             return false;
         }
     }
+      
+      
+
+
+    //FUNCIONES ADMINISTRADOR-----------------------------
+
+    //CREAR GESTOR
+    public function crearGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+        $stmt = $this->conn->prepare("
+            INSERT INTO Gestor (ID, P_Producto, P_Inventario, P_Pedidos, P_Validacion, P_Soporte)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+        }
+
+        $stmt->bind_param("iiiiii", $id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
+        $resultado = $stmt->execute();
+
+        if (!$resultado) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        return $resultado;
+    }
+
+    //MODIFICAR GESTOR
+    public function modificarGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+        $stmt = $this->conn->prepare("
+            UPDATE Gestor
+            SET P_Producto = ?, P_Inventario = ?, P_Pedidos = ?, P_Validacion = ?, P_Soporte = ?
+            WHERE ID = ?
+        ");
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+        }
+
+        $stmt->bind_param("iiiiii", $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte, $id);
+        $resultado = $stmt->execute();
+
+        if (!$resultado) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        return $stmt->affected_rows > 0;
+    }
+
+    //ELIMINAR DE GESTOR/QUITAR PERMISOS A USUARIO COMO GESTOR NO BORRARLO
+
+    public function eliminarGestor($id) {
+        $stmt = $this->conn->prepare("DELETE FROM Gestor WHERE ID = ?");
+        
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+        }
+
+        $stmt->bind_param("i", $id);
+        $resultado = $stmt->execute();
+
+        if (!$resultado) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        return $stmt->affected_rows > 0;
+    }
+
+    //BUSCAR USUARIOS CON FILTROS FUNCION ADMIN
+    public function buscarUsuarios($filtros) {
+        $query = "SELECT * FROM Usuario WHERE 1=1";
+        $tipos = "";
+        $params = [];
+
+        if (!empty($filtros['ID'])) {
+            $query .= " AND ID = ?";
+            $tipos .= "i";
+            $params[] = $filtros['ID'];
+        }
+        if (!empty($filtros['Nombre'])) {
+            $query .= " AND Nombre = ?";
+            $tipos .= "s";
+            $params[] = $filtros['Nombre'];
+        }
+        if (!empty($filtros['Apellido'])) {
+            $query .= " AND Apellido = ?";
+            $tipos .= "s";
+            $params[] = $filtros['Apellido'];
+        }
+        if (!empty($filtros['Email'])) {
+            $query .= " AND Email = ?";
+            $tipos .= "s";
+            $params[] = $filtros['Email'];
+        }
+        if (!empty($filtros['Activo'])) {
+            $query .= " AND Activo = ?";
+            $tipos .= "i";
+            $params[] = $filtros['Activo'];
+        }
+        if (!empty($filtros['Rol'])) {
+            $query .= " AND Rol = ?";
+            $tipos .= "s";
+            $params[] = $filtros['Rol'];
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+        }
+
+        if (!empty($params)) {
+            $stmt->bind_param($tipos, ...$params);
+        }
+
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        if (!$resultado) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        $usuarios = [];
+        while ($row = $resultado->fetch_assoc()) {
+            $usuarios[] = $row;
+        }
+
+        return $usuarios;
+    }
 
 }
+
 ?>

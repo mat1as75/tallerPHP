@@ -404,11 +404,23 @@ class UsuarioController
 
 
 
+ }
+
+    public function buscarUsuarioporMail($email){
+
+        return $this->usuario->buscarUsuarioporMail($email);
+
+    }
+
+
+    public function todastuscompras(){
+
         if (!isset($input['email']) || !isset($input['password']) || !isset($input['nuevapass'])) {
             http_response_code(400);
             echo json_encode(["Mensaje" => "Falta algun dato"]);
             return;
         }
+
 
         $email  = $input["email"];
         $password = $input["password"];
@@ -445,6 +457,147 @@ class UsuarioController
 
 
     }
+
+
+
+
+
+//FUNCIONES ADMINISTRADOR----------
+
+    // Busca usuarios con filtros
+    public function buscarUsuarios()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        // lo que venga lo usamos como filtro ej=  {"Nombre": "Juan", "Email": "gmail"}
+        
+        $filtros = !empty($data) ? $data : null;
+
+        $usuarios = $this->usuario->buscarUsuarios($filtros);
+
+        echo json_encode($usuarios);
+    }
+
+
+    //CREAR GESTOR
+    //EJEMPLO JSON {
+    /*
+    
+    "mail": carlos.álvarez@correo.com,
+    "p_producto": 1,
+    "p_inventario": 1,
+    "p_pedidos": 0,
+    "p_validacion": 0,
+    "p_soporte": 1
+    }
+    
+    */
+
+    public function crearGestor(){
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $campos = ['mail', 'p_producto', 'p_inventario', 'p_pedidos', 'p_validacion', 'p_soporte'];
+
+        //LLAMAR CONTROLADOR USUARIO PARA OBTENER ID DEL USUARIO VIA MAIL / INSTANCIAR CONTROLADOR
+        
+        $usuario = $this->buscarUsuarioporMail($data['mail']);
+
+        //SACAR ID DEL USUARIO
+        $id = $usuario['ID'];
+
+
+        foreach ($campos as $campo) {
+            if (!isset($data[$campo])) {
+                http_response_code(400);
+                echo json_encode(["error" => "Falta el campo '$campo'"]);
+                return;
+            }
+        }
+
+        try {
+            $resultado = $this->usuario->crearGestor(
+                $id,
+                $data['p_producto'],
+                $data['p_inventario'],
+                $data['p_pedidos'],
+                $data['p_validacion'],
+                $data['p_soporte']
+            );
+            echo json_encode(["success" => $resultado]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+
+        
+    }
+
+    //MODIFICAR GESTOR
+    public function modificarGestor(){
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $campos = ['id', 'p_producto', 'p_inventario', 'p_pedidos', 'p_validacion', 'p_soporte'];
+        foreach ($campos as $campo) {
+            if (!isset($data[$campo])) {
+                http_response_code(400);
+                echo json_encode(["error" => "Falta el campo '$campo'"]);
+                return;
+            }
+        }
+
+        try {
+            $resultado = $this->usuario->modificarGestor(
+                $data['id'],
+                $data['p_producto'],
+                $data['p_inventario'],
+                $data['p_pedidos'],
+                $data['p_validacion'],
+                $data['p_soporte']
+            );
+
+            if ($resultado) {
+                echo json_encode(["success" => true, "mensaje" => "Gestor modificado correctamente"]);
+            } else {
+                http_response_code(404);
+                echo json_encode(["success" => false, "mensaje" => "No se encontró el gestor o no hubo cambios"]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    //ELIMINAR GESTOR
+
+    public function eliminarGestor(){
+            
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['id'])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Falta el campo 'id'"]);
+            return;
+        }
+
+        try {
+            $resultado = $this->usuario->eliminarGestor($data['id']);
+
+            if ($resultado) {
+                echo json_encode(["success" => true, "mensaje" => "Gestor eliminado correctamente"]);
+            } else {
+                http_response_code(404);
+                echo json_encode(["success" => false, "mensaje" => "No se encontró el gestor"]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+
+
 
 
 
