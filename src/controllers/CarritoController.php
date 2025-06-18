@@ -10,12 +10,33 @@ class CarritoController
         $this->carrito = new CarritoRepository();
     }
 
-    // Obtener el carrito de un usuario
-    public function getCarrito($id_usuario)
+    // Obtener el carrito de un cliente
+    public function getCarrito($ID_Cliente)
     {
-        $carrito = $this->carrito->getCarrito($id_usuario);
+        $carrito = $this->carrito->getCarrito($ID_Cliente);
         echo json_encode($carrito);
     }
+
+    // Obtener el carrito detallado de un cliente
+    public function getCarritoDetallado($ID_Cliente)
+    {
+        $carrito = $this->carrito->getCarritoDetallado($ID_Cliente);
+        echo json_encode($carrito);
+    }
+
+    // Obtener la cantidad de productos que tiene un carrito de cliente
+    public function getQuantityProductsCart($ID_Cliente)
+    {
+        if (!$ID_Cliente) {
+            http_response_code(400);
+            echo json_encode(["mensaje" => "ID de Cliente es requerido"]);
+            return;
+        }
+
+        $response = $this->carrito->getCountProducts($ID_Cliente);
+        echo json_encode($response);
+    }
+
 
     // Agregar un producto al carrito
     public function addProducto()
