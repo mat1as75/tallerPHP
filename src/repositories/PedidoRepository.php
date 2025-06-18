@@ -81,6 +81,20 @@ class PedidoRepository
         $this->conn->begin_transaction();
 
         try {
+            // Actualizar stock de productos
+            foreach ($productos as $prod) {
+                $id_producto = $prod['id_producto'];
+                $cantidad = $prod['cantidad'];
+
+                $stmtStock = $this->conn->prepare("UPDATE Producto SET Stock = Stock - ? WHERE ID = ?");
+                $stmtStock->bind_param("ii", $cantidad, $id_producto);
+                $stmtStock->execute();
+                if ($stmtStock->error) {
+                    throw new Exception('Error al actualizar el stock del producto: ' . $stmtStock->error);
+                }
+                $stmtStock->close();
+            }
+
             // Chequear existencia de DatosEnvio
             $stmtCheck = $this->conn->prepare("SELECT ID FROM DatosEnvio WHERE TelefonoCliente = ? AND DireccionCliente = ? AND DepartamentoCliente = ? AND CiudadCliente = ?");
             $stmtCheck->bind_param(
