@@ -410,8 +410,8 @@ LOCK TABLES `Usuario` WRITE;
 INSERT INTO `Usuario` VALUES
 (1, 'Juan', 'Gómez', 'juan.gomez@correo.com', '$2y$10$bPcGFiMcUCYHDwPsaTxGxO945N40noYX.ADSGP0Jx/qHiViSVWsM.', 1, 'administrador', '2025-05-19 18:59:40'),
 (2, 'Pedro', 'López', 'pedro.lopez@correo.com', '$2y$10$SVbeo8R6RKOaa.bv2D/yf.WylVnu76UwxrCIfb5Rt1TtnxTXzRY/i', 0, 'cliente', '2025-05-19 18:59:40'),
-(3, 'Lucía', 'Rodríguez', 'lucía.rodriguez@correo.com', '$2y$10$pOvyybIoYEEqOPm/P0unbu.z1Ympt9lwOdpRp6XAlXXGlgsQgXXYC', 1, 'administrador', '2025-05-19 18:59:40'),
-(4, 'Sofía', 'Martínez', 'sofía.martinez@correo.com', '$2y$10$3cojLXlTFHTwMzQls/6SKu9zYL6fXw/mqglwR6SVyvu8BWulQhyZC', 1, 'cliente', '2025-05-19 18:59:40'),
+(3, 'Lucía', 'Rodríguez', 'lucia.rodriguez@correo.com', '$2y$10$pOvyybIoYEEqOPm/P0unbu.z1Ympt9lwOdpRp6XAlXXGlgsQgXXYC', 1, 'administrador', '2025-05-19 18:59:40'),
+(4, 'Sofía', 'Martínez', 'sofia.martinez@correo.com', '$2y$10$3cojLXlTFHTwMzQls/6SKu9zYL6fXw/mqglwR6SVyvu8BWulQhyZC', 1, 'cliente', '2025-05-19 18:59:40'),
 (5, 'Diego', 'Díaz', 'diego.diaz@correo.com', '$2y$10$yjcsH/sb8ENaPyxHwp6oLu4z6DA1DsgHrOXzbcSIKW5wZ3utZy2RO', 1, 'administrador', '2025-05-19 18:59:40'),
 (6, 'Carlos', 'Álvarez', 'carlos.alvarez@correo.com', '$2y$10$xozmxJiCpogv19GYP3g7lusZH0bX3EfLL92tH72OPe4VQSkKCS39a', 0, 'cliente', '2025-05-19 18:59:40'),
 (7, 'Valeria', 'Romero', 'valeria.romero@correo.com', '$2y$10$7jYPeD8GT6TgycyvdY5KreCj1pMoWSBPreZ0PYUJncYxEyqTYoCWe', 0, 'administrador', '2025-05-19 18:59:40'),
