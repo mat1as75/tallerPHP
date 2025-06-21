@@ -395,7 +395,7 @@ CREATE TABLE `Usuario` (
   `Email` varchar(100) DEFAULT NULL,
   `Contrasena` varchar(255) DEFAULT NULL,
   `Activo` tinyint(1) DEFAULT NULL,
-  `Rol` enum('administrador','cliente') DEFAULT NULL,
+  `Rol` enum('administrador', 'gestor', 'cliente') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Email` (`Email`)
@@ -409,15 +409,15 @@ CREATE TABLE `Usuario` (
 LOCK TABLES `Usuario` WRITE;
 /*!40000 ALTER TABLE `Usuario` DISABLE KEYS */;
 INSERT INTO `Usuario` VALUES
-(1,'Juan','Gómez','juan.gómez@correo.com','pass1',1,'administrador','2025-05-19 18:59:40'),
-(2,'Pedro','López','pedro.lópez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
-(3,'Lucía','Rodríguez','lucía.rodríguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
-(4,'Sofía','Martínez','sofía.martínez@correo.com','pass4',1,'cliente','2025-05-19 18:59:40'),
-(5,'Diego','Díaz','diego.díaz@correo.com','pass5',1,'administrador','2025-05-19 18:59:40'),
-(6,'Carlos','Álvarez','carlos.álvarez@correo.com','pass6',0,'cliente','2025-05-19 18:59:40'),
+(1,'Juan','Gómez','juan.gomez@correo.com','pass1',1,'administrador','2025-05-19 18:59:40'),
+(2,'Pedro','López','pedro.lopez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
+(3,'Lucía','Rodríguez','lucía.rodriguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
+(4,'Sofía','Martínez','sofía.martinez@correo.com','pass4',1,'cliente','2025-05-19 18:59:40'),
+(5,'Diego','Díaz','diego.diaz@correo.com','pass5',1,'administrador','2025-05-19 18:59:40'),
+(6,'Carlos','Álvarez','carlos.alvarez@correo.com','pass6',0,'cliente','2025-05-19 18:59:40'),
 (7,'Valeria','Romero','valeria.romero@correo.com','pass7',0,'administrador','2025-05-19 18:59:40'),
-(8,'Ana','Pérez','ana.pérez@correo.com','pass8',1,'gestor','2025-05-19 18:59:40'),
-(9,'Marcos','Fernández','marcos.fernández@correo.com','pass9',1,'gestor','2025-05-19 18:59:40'),
+(8,'Ana','Pérez','ana.perez@correo.com','pass8',1,'gestor','2025-05-19 18:59:40'),
+(9,'Marcos','Fernández','marcos.fernandez@correo.com','pass9',1,'gestor','2025-05-19 18:59:40'),
 (10,'Elena','Romero','elena.romero@correo.com','pass10',1,'gestor','2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Usuario` ENABLE KEYS */;
 UNLOCK TABLES;

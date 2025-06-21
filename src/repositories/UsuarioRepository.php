@@ -341,5 +341,19 @@ class UsuarioRepository
         }
     }
 
+    public function hashPasswords()
+    {
+        $usuarios = $this->getUsuarios();
+        foreach ($usuarios as $usuario) {
+            if (!password_get_info($usuario['Contrasena'])['algo']) {
+                $hashed = password_hash($usuario['Contrasena'], PASSWORD_DEFAULT);
+                $stmt = $this->conn->prepare("UPDATE Usuario SET Contrasena = ? WHERE ID = ?");
+                $stmt->bind_param("si", $hashed, $usuario['ID']);
+                $stmt->execute();
+            }
+        }
+        return true;
+    }
+
 }
 ?>

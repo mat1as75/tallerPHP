@@ -29,6 +29,7 @@ $router->add('GET', '/historialcompras/{id}', [$usuarioController, 'todastuscomp
 $router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacuenta']);
 $router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
 $router->add('PUT', '/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
+$router->add('PUT', '/usuarios/hash-passwords', [$usuarioController, 'hashPasswords']);
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);

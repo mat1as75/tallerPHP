@@ -53,13 +53,13 @@ class UsuarioController
         $usr = $this->usuario->buscarUsuarioporMail($email);
 
         if ($usr) {
-            if($usr["Activo"] === "0") {
+            if ($usr["Activo"] === "0") {
                 http_response_code(400);
-                echo json_encode(["Mensaje"=> "El usuario esta dado de baja, debe mandar un email"]);
+                echo json_encode(["Mensaje" => "El usuario esta dado de baja, debe mandar un email"]);
                 return;
             }
             http_response_code(400);
-            echo json_encode(["Mensaje"=> "Usuario ya registrado"]);
+            echo json_encode(["Mensaje" => "Usuario ya registrado"]);
             return;
         }
 
@@ -253,8 +253,8 @@ class UsuarioController
 
     public function todastuscompras($id)
     {
-    
-       
+
+
         $usr = $this->usuario->getUsuarioById($id);
 
         if ($usr == null) {
@@ -398,9 +398,10 @@ class UsuarioController
         return true; // Sesión creada o actualizada
     }
 
-    public function cambiopassdesdeDetalles(){
+    public function cambiopassdesdeDetalles()
+    {
 
-         $input = json_decode(file_get_contents("php://input"), true);
+        $input = json_decode(file_get_contents("php://input"), true);
 
 
 
@@ -410,45 +411,50 @@ class UsuarioController
             return;
         }
 
-        $email  = $input["email"];
+        $email = $input["email"];
         $password = $input["password"];
         $nuevapass = $input["nuevapass"];
 
 
         $usuario = $this->usuario->buscarUsuarioporMail($email);
 
-        if ($usuario==null){
+        if ($usuario == null) {
             http_response_code(400);
-            echo json_encode(["Mensaje"=> "Usuario no encontrado"]);
+            echo json_encode(["Mensaje" => "Usuario no encontrado"]);
             return;
         }
 
         if (!password_verify($password, $usuario["Contrasena"])) {
-        http_response_code(400);
-        echo json_encode(["Mensaje" => "El password actual no coincide"]);
-        return;
-        }
-
-
-        $check = $this->usuario->NuevaPass($usuario,$nuevapass);
-
-        if ($check){
-            http_response_code(200);
-            echo json_encode(["Mensaje"=> "Password Actualizada"]);
-            return;
-        }else{
             http_response_code(400);
-            echo json_encode(["Mensaje"=> "No se pudo actualizar la Password"]);
-
+            echo json_encode(["Mensaje" => "El password actual no coincide"]);
+            return;
         }
 
 
+        $check = $this->usuario->NuevaPass($usuario, $nuevapass);
 
+        if ($check) {
+            http_response_code(200);
+            echo json_encode(["Mensaje" => "Password Actualizada"]);
+            return;
+        } else {
+            http_response_code(400);
+            echo json_encode(["Mensaje" => "No se pudo actualizar la Password"]);
+
+        }
     }
 
-
-
-
+    public function hashPasswords()
+    {
+        if ($this->usuario->hashPasswords()) {
+            http_response_code(200);
+            echo json_encode(["Mensaje" => "Contraseñas actualizadas con éxito"]);
+            return;
+        }
+        http_response_code(500);
+        echo json_encode(["Mensaje" => "Error al actualizar las contraseñas"]);
+        return;
+    }
 
 }
 
