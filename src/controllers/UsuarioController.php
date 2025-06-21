@@ -414,53 +414,6 @@ class UsuarioController
 
     }
 
-
-    public function todastuscompras()
-    {
-
-        if (!isset($input['email']) || !isset($input['password']) || !isset($input['nuevapass'])) {
-            http_response_code(400);
-            echo json_encode(["Mensaje" => "Falta algun dato"]);
-            return;
-        }
-
-
-        $email = $input["email"];
-        $password = $input["password"];
-        $nuevapass = $input["nuevapass"];
-
-
-        $usuario = $this->usuario->buscarUsuarioporMail($email);
-
-        if ($usuario == null) {
-            http_response_code(400);
-            echo json_encode(["Mensaje" => "Usuario no encontrado"]);
-            return;
-        }
-
-        if (!password_verify($password, $usuario["Contrasena"])) {
-            http_response_code(400);
-            echo json_encode(["Mensaje" => "El password actual no coincide"]);
-            return;
-        }
-
-
-        $check = $this->usuario->NuevaPass($usuario, $nuevapass);
-
-        if ($check) {
-            http_response_code(200);
-            echo json_encode(["Mensaje" => "Password Actualizada"]);
-            return;
-        } else {
-            http_response_code(400);
-            echo json_encode(["Mensaje" => "No se pudo actualizar la Password"]);
-
-        }
-
-
-
-    }
-
     public function hashPasswords()
     {
         if ($this->usuario->hashPasswords()) {
