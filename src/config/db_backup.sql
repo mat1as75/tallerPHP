@@ -102,7 +102,6 @@ LOCK TABLES `Carrito` WRITE;
 INSERT INTO `Carrito` VALUES
 (2,1,1),
 (2,12,2),
-(3,13,3),
 (2,16,2),
 (4,1,2),
 (4,12,3),
