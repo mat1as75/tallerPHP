@@ -409,16 +409,16 @@ CREATE TABLE `Usuario` (
 LOCK TABLES `Usuario` WRITE;
 /*!40000 ALTER TABLE `Usuario` DISABLE KEYS */;
 INSERT INTO `Usuario` VALUES
-(1,'Juan','Gómez','juan.gomez@correo.com','pass1',1,'administrador','2025-05-19 18:59:40'),
-(2,'Pedro','López','pedro.lopez@correo.com','pass2',0,'cliente','2025-05-19 18:59:40'),
-(3,'Lucía','Rodríguez','lucía.rodriguez@correo.com','pass3',1,'administrador','2025-05-19 18:59:40'),
-(4,'Sofía','Martínez','sofía.martinez@correo.com','pass4',1,'cliente','2025-05-19 18:59:40'),
-(5,'Diego','Díaz','diego.diaz@correo.com','pass5',1,'administrador','2025-05-19 18:59:40'),
-(6,'Carlos','Álvarez','carlos.alvarez@correo.com','pass6',0,'cliente','2025-05-19 18:59:40'),
-(7,'Valeria','Romero','valeria.romero@correo.com','pass7',0,'administrador','2025-05-19 18:59:40'),
-(8,'Ana','Pérez','ana.perez@correo.com','pass8',1,'gestor','2025-05-19 18:59:40'),
-(9,'Marcos','Fernández','marcos.fernandez@correo.com','pass9',1,'gestor','2025-05-19 18:59:40'),
-(10,'Elena','Romero','elena.romero@correo.com','pass10',1,'gestor','2025-05-19 18:59:40');
+(1, 'Juan', 'Gómez', 'juan.gomez@correo.com', '$2y$10$bPcGFiMcUCYHDwPsaTxGxO945N40noYX.ADSGP0Jx/qHiViSVWsM.', 1, 'administrador', '2025-05-19 18:59:40'),
+(2, 'Pedro', 'López', 'pedro.lopez@correo.com', '$2y$10$SVbeo8R6RKOaa.bv2D/yf.WylVnu76UwxrCIfb5Rt1TtnxTXzRY/i', 0, 'cliente', '2025-05-19 18:59:40'),
+(3, 'Lucía', 'Rodríguez', 'lucía.rodriguez@correo.com', '$2y$10$pOvyybIoYEEqOPm/P0unbu.z1Ympt9lwOdpRp6XAlXXGlgsQgXXYC', 1, 'administrador', '2025-05-19 18:59:40'),
+(4, 'Sofía', 'Martínez', 'sofía.martinez@correo.com', '$2y$10$3cojLXlTFHTwMzQls/6SKu9zYL6fXw/mqglwR6SVyvu8BWulQhyZC', 1, 'cliente', '2025-05-19 18:59:40'),
+(5, 'Diego', 'Díaz', 'diego.diaz@correo.com', '$2y$10$yjcsH/sb8ENaPyxHwp6oLu4z6DA1DsgHrOXzbcSIKW5wZ3utZy2RO', 1, 'administrador', '2025-05-19 18:59:40'),
+(6, 'Carlos', 'Álvarez', 'carlos.alvarez@correo.com', '$2y$10$xozmxJiCpogv19GYP3g7lusZH0bX3EfLL92tH72OPe4VQSkKCS39a', 0, 'cliente', '2025-05-19 18:59:40'),
+(7, 'Valeria', 'Romero', 'valeria.romero@correo.com', '$2y$10$7jYPeD8GT6TgycyvdY5KreCj1pMoWSBPreZ0PYUJncYxEyqTYoCWe', 0, 'administrador', '2025-05-19 18:59:40'),
+(8, 'Ana', 'Pérez', 'ana.perez@correo.com', '$2y$10$R2kzWkcA2tBIl4ygzuzlb.rub3ZxN5pLcD2n/8i9FPrufgtlioDZG', 1, 'gestor', '2025-05-19 18:59:40'),
+(9, 'Marcos', 'Fernández', 'marcos.fernandez@correo.com', '$2y$10$XpNjF5Mb2QOneNhhxZwbleDy8ACRKirSf2MMPgA3CUlMB5i1PS1Rm', 1, 'gestor', '2025-05-19 18:59:40'),
+(10, 'Elena', 'Romero', 'elena.romero@correo.com', '$2y$10$BVLWqRmbVSAdcGJAnNkdZeVGjNDesFgStDglr/DiUe24XqmNnJjPS', 1, 'gestor', '2025-05-19 18:59:40');
 /*!40000 ALTER TABLE `Usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 
