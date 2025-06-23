@@ -33,10 +33,12 @@ class UsuarioRepository
         return $result->fetch_assoc();
     }
 
-    public function create($email, $password, $nombre, $apellido, $rol)
+
+    public function create($email, $password, $nombre, $apellido, $rol, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte)
     {
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $activo = 1;
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $activo = 1;
+
 
         $stmt = $this->conn->prepare("INSERT INTO Usuario (
         Email, Nombre, Apellido, Contrasena, Activo, Rol
@@ -45,26 +47,45 @@ class UsuarioRepository
         $stmt->bind_param("ssssss", $email, $nombre, $apellido, $hashed, $activo, $rol);
         $r = $stmt->execute();
 
-        // Verificamos si se insertó bien el usuario
-        if (!$r) {
-            echo json_encode("Error al insertar el usuario.");
+
+    
+    // Verificamos si se insertó bien el usuario
+    if (!$r) {
+        error_log("Error al insertar el usuario.");
+        //echo json_encode("Error al insertar el usuario.");
+        return false;
+    }
+
+    $user = $this->buscarUsuarioporMail($email);
+    if ($user && isset($user["ID"])) {
+        $id = $user["ID"];
+    }
+
+   // Según el rol, insertamos en la tabla correspondiente
+    if (strtolower($rol) === "cliente") {
+        $ok = $this->ConexionconCliente($id);
+        if ($ok) {
+          
+            return true;
+        } else {
+        
             return false;
         }
-
-        $user = $this->buscarUsuarioporMail($email);
-        if ($user && isset($user["ID"])) {
-            $id = $user["ID"];
+    }else if (strtolower($rol) === "gestor"){
+        $ok = $this->ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
+        if ($ok) {
+          
+            return true;
+        } else {
+        
+            return false;
         }
+        
 
-        // Según el rol, insertamos en la tabla correspondiente
-        if (strtolower($rol) === "cliente") {
-            $ok = $this->ConexionconCliente($id);
-            if ($ok) {
-                return true;
-            } else {
-                return false;
-            }
-        }//ACA SEGUIRIA PARA ADMINISTRADOR
+    }//ACA SEGUIRIA PARA ADMINISTRADOR
+    
+    return false;
+
     }
 
 
@@ -78,9 +99,9 @@ class UsuarioRepository
     }
 
 
+
     public function clienteActivo($usuario)
     {
-
         $stmt = $this->conn->prepare("SELECT Activo FROM Usuario WHERE ID = ?");
         $stmt->bind_param("i", $usuario["ID"]);
         if (!$stmt->execute()) {
@@ -88,9 +109,7 @@ class UsuarioRepository
             return false;
         }
 
-
         $stmt->store_result();
-
         $activo = null;
         $stmt->bind_result($activo);
 
@@ -103,6 +122,7 @@ class UsuarioRepository
         return false;
     }
 
+    //CONEXION CLIENTE
     public function ConexionconCliente($id)
     {
         $stmt = $this->conn->prepare("INSERT INTO Cliente (ID  ,tokenrecuperacion) VALUES (?, 0)");
@@ -112,6 +132,30 @@ class UsuarioRepository
 
         return $success; // true si fue exitoso, false si falló
     }
+  
+    //CONEXION GESTOR
+    public function ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte){
+
+        $stmt = $this->conn->prepare("
+            INSERT INTO Gestor (ID, P_Producto, P_Inventario, P_Pedidos, P_Validacion, P_Soporte)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+        }
+
+        $stmt->bind_param("iiiiii", $id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
+        $resultado = $stmt->execute();
+
+        if (!$resultado) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        return $resultado;
+
+    }
+  
 
     public function update($email, $password, $nombre, $apellido)
     {
@@ -365,7 +409,13 @@ class UsuarioRepository
     }
 
     //MODIFICAR GESTOR
-    public function modificarGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+    public function modificarGestor($Email, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+
+        $user = $this->buscarUsuarioporMail($Email);
+        if ($user && isset($user["ID"])) {
+        $id = $user["ID"];
+        }
+
         $stmt = $this->conn->prepare("
             UPDATE Gestor
             SET P_Producto = ?, P_Inventario = ?, P_Pedidos = ?, P_Validacion = ?, P_Soporte = ?

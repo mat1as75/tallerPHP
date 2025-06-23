@@ -44,6 +44,7 @@ class UsuarioController
         $nombre = trim($input['Nombre']);
         $apellido = trim($input['Apellido']);
         $rol = trim($input['Rol']);
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             echo json_encode(["Mensaje" => "Email no válido"]);
@@ -63,24 +64,51 @@ class UsuarioController
             return;
         }
 
-        $success = $this->usuario->create($email, $password, $nombre, $apellido, $rol);
-        $usuario = $this->usuario->buscarUsuarioporMail($email);
 
-        if ($success == true) {
+  
+        //SI ES GESTOR -------------------------------------
+        if ($rol == 'gestor'){
+
+            $p_producto = $input['p_producto'] ?? 0;
+            $p_inventario = $input['p_inventario'] ?? 0;
+            $p_pedidos = $input['p_pedidos'] ?? 0;
+            $p_validacion = $input['p_validacion'] ?? 0;
+            $p_soporte = $input['p_soporte'] ?? 0;
+
+            $success = $this->usuario->create(
+            $email, $password, $nombre, $apellido, $rol,
+            $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
+
+        }else if ($rol == 'cliente'){ //SI ES CLIENTE-------------
+            
+            $success = $this->usuario->create($email, $password, $nombre, $apellido, $rol,null ,null ,null ,null ,null);
+            $usuario = $this->usuario->buscarUsuarioporMail($email); 
+
+        }
+
+        if ($success) {
+
             $this->creoCookie($usuario);
             $this->creoSession($usuario);
+          
+            ob_clean(); //LIMPIAR SI TRAE ALGO ANTES DEL JSON
 
-            if ($rol == "cliente") {
+            if($rol == "cliente") {
                 http_response_code(201);
                 return json_encode(["Mensaje" => "Cliente creado con éxito "]);
                 //return;
             } else if ($rol == 'Administrador') {
                 http_response_code(201);
-                echo json_encode(['Mensaje' => 'Administrador Creado con exito']);
-            } else {
+
+                echo json_encode(['mensaje'=> 'Administrador Creado con exito']);
+            }else if ($rol == 'gestor'){
                 http_response_code(201);
-                echo json_encode(['Mensaje' => 'Usuario creado con exito']);
-            }
+                echo json_encode(['mensaje'=> 'Gestor Creado con exito']);
+            }else{
+                http_response_code(201);
+                echo json_encode(['mensaje'=> 'Usuario creado con exito']);
+            }       
+
         } else {
             http_response_code(500);
             echo json_encode(["Mensaje" => "Error al crear el usuario"]);
@@ -503,35 +531,56 @@ class UsuarioController
     {
 
         $data = json_decode(file_get_contents("php://input"), true);
+        
 
-        $campos = ['id', 'p_producto', 'p_inventario', 'p_pedidos', 'p_validacion', 'p_soporte'];
+        $campos = ['Email', 'p_producto', 'p_inventario', 'p_pedidos', 'p_validacion', 'p_soporte'];
+
         foreach ($campos as $campo) {
+
             if (!isset($data[$campo])) {
+
                 http_response_code(400);
                 echo json_encode(["error" => "Falta el campo '$campo'"]);
                 return;
+
             }
+
         }
 
+        $usuario = $this->buscarUsuarioporMail($data['Email']);
+
+        //SACAR ID DEL USUARIO
+        $id = $usuario['ID'];
+
         try {
+
             $resultado = $this->usuario->modificarGestor(
-                $data['id'],
+
+                $data['Email'],
                 $data['p_producto'],
                 $data['p_inventario'],
                 $data['p_pedidos'],
                 $data['p_validacion'],
                 $data['p_soporte']
+
             );
 
             if ($resultado) {
+
                 echo json_encode(["success" => true, "mensaje" => "Gestor modificado correctamente"]);
+
             } else {
+
                 http_response_code(404);
                 echo json_encode(["success" => false, "mensaje" => "No se encontró el gestor o no hubo cambios"]);
+
             }
+
         } catch (Exception $e) {
+
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
+
         }
     }
 
