@@ -26,7 +26,9 @@ class PedidoRepository
     public function getPedidos()
     {
         $sql = "SELECT * FROM Pedido";
-        $result = mysqli_query($this->conn, $sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $pedidos = [];
         while ($row = $result->fetch_assoc()) {
             $pedidos[] = $row;
@@ -37,20 +39,23 @@ class PedidoRepository
     // Obtener un pedido por ID
     public function getPedidoById($id)
     {
-        $sql = "SELECT * FROM Pedido WHERE ID = $id";
-        $result = mysqli_query($this->conn, $sql);
-        $pedidos = [];
-        while ($row = $result->fetch_assoc()) {
-            $pedidos[] = $row;
-        }
-        return $pedidos;
+        $sql = "SELECT * FROM Pedido WHERE ID = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->fetch_assoc();
     }
 
     // Obtener pedidos por cliente
     public function getPedidoByCliente($id_cliente)
     {
-        $sql = "SELECT * FROM Pedido WHERE ID_Cliente = $id_cliente";
-        $result = mysqli_query($this->conn, $sql);
+        $sql = "SELECT * FROM Pedido WHERE ID_Cliente = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id_cliente);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $pedidos = [];
         while ($row = $result->fetch_assoc()) {
             $pedidos[] = $row;
@@ -76,15 +81,34 @@ class PedidoRepository
         $this->conn->begin_transaction();
 
         try {
-            // Insertar en DatosEnvio
-            $stmtEnvio = $this->conn->prepare("INSERT INTO DatosEnvio (TelefonoCliente, DireccionCliente, DepartamentoCliente, CiudadCliente) VALUES (?, ?, ?, ?)");
-            $stmtEnvio->bind_param("ssss", $datosEnvio['telefonoCliente'], $datosEnvio['direccionCliente'], $datosEnvio['departamentoCliente'], $datosEnvio['ciudadCliente']);
-            $stmtEnvio->execute();
-            if ($stmtEnvio->error) {
-                throw new Exception('Error al crear datos de envío: ' . $stmtEnvio->error);
+            // Actualizar stock de productos
+            foreach ($productos as $prod) {
+                $id_producto = $prod['id_producto'];
+                $cantidad = $prod['cantidad'];
+
+                $stmtStock = $this->conn->prepare("UPDATE Producto SET Stock = Stock - ? WHERE ID = ?");
+                $stmtStock->bind_param("ii", $cantidad, $id_producto);
+                $stmtStock->execute();
+                if ($stmtStock->error) {
+                    throw new Exception('Error al actualizar el stock del producto: ' . $stmtStock->error);
+                }
+                $stmtStock->close();
             }
-            $id_datosEnvio = $this->conn->insert_id; // Obtener el ID del último registro insertado
-            $stmtEnvio->close();
+
+            // Chequear existencia de DatosEnvio
+            $stmtCheck = $this->conn->prepare("SELECT ID FROM DatosEnvio WHERE TelefonoCliente = ? AND DireccionCliente = ? AND DepartamentoCliente = ? AND CiudadCliente = ?");
+            $stmtCheck->bind_param(
+                "ssss",
+                $datosEnvio['telefonoCliente'],
+                $datosEnvio['direccionCliente'],
+                $datosEnvio['departamentoCliente'],
+                $datosEnvio['ciudadCliente']
+            );
+            $stmtCheck->execute();
+            $result = $stmtCheck->get_result();
+            $row = $result->fetch_assoc();
+            $id_datosEnvio = $row['ID'];
+            $stmtCheck->close();
 
             // Insertar en Pedido
             $stmtPedido = $this->conn->prepare("INSERT INTO Pedido (ID_Cliente, ID_DatosEnvio, Total, Estado) VALUES (?, ?, ?, ?)");
@@ -114,11 +138,11 @@ class PedidoRepository
 
             // Commit transaction
             $this->conn->commit();
-            return ['mensaje' => 'Pedido creado correctamente', 'ID_Pedido' => $id_pedido];
+            return json_encode(['ID_Pedido' => $id_pedido]);
 
         } catch (Exception $e) {
             $this->conn->rollback(); // Revertir en caso de error
-            return ['error' => $e->getMessage()];
+            return json_encode(['error' => $e->getMessage()]);
         }
     }
 
@@ -130,24 +154,24 @@ class PedidoRepository
         $stmt->execute();
 
         if ($stmt->error)
-            return ['error' => 'Error al actualizar el estado del pedido: ' . $stmt->error];
+            return json_encode(['error' => 'Error al actualizar el estado del pedido: ' . $stmt->error]);
         $stmt->close();
-        return ['mensaje' => 'Estado del pedido actualizado'];
+        return json_encode(['mensaje' => 'Estado del pedido actualizado']);
     }
 
     // Cancelar un pedido
     public function cancel($id)
     {
         if ($this->checkPedidoEntregado($id)) {
-            return ['error' => 'No se puede cancelar un pedido ya entregado'];
+            return json_encode(['error' => 'No se puede cancelar un pedido ya entregado']);
         }
 
         $stmt = $this->conn->prepare("UPDATE Pedido SET Estado = 'cancelado' WHERE ID = ?");
         $stmt->execute([$id]);
         if ($stmt->error) {
-            return ['error' => 'Error al cancelar el pedido: ' . $stmt->error];
+            return json_encode(['error' => 'Error al cancelar el pedido: ' . $stmt->error]);
         }
-        return ['mensaje' => 'Pedido cancelado'];
+        return json_encode(['mensaje' => 'Pedido cancelado']);
     }
 
     // Checkear si el cliente existe
@@ -198,12 +222,12 @@ class PedidoRepository
 
             $this->datosEnvioRepository->create($telefono, $direccion, $deparatamento, $ciudad);
         } else {
-            return ['error' => 'Datos de envío no proporcionados'];
+            return json_encode(['error' => 'Datos de envío no proporcionados']);
         }
 
         // Verifico existencia de Cliente
         if ($this->checkClientePedido($id_cliente) === false) {
-            return ['error' => 'Cliente no encontrado'];
+            return json_encode(['error' => 'Cliente no encontrado']);
         }
 
         // Verifico existencia de Productos
@@ -211,12 +235,157 @@ class PedidoRepository
         if (!empty($productos)) {
             foreach ($productos as $producto) {
                 if (!$this->checkPedidoProducto($producto['id_producto'])) {
-                    return ['error' => 'Producto inválido en el pedido'];
+                    return json_encode(['error' => 'Producto inválido en el pedido']);
                 }
             }
         } else {
-            return ['error' => 'No se han agregado productos al pedido'];
+            return json_encode(['error' => 'No se han agregado productos al pedido']);
         }
+    }
+
+    public function sendEmailOrderConfirmation($data)
+    {
+        $mailHelper = new MailService();
+
+        $email = $data['Email'];
+        $nombreCliente = $data['Nombre'];
+        $idPedido = $data['ID_Pedido'];
+        $montoTotal = $data['Total'];
+        $metodoPago = $data['MetodoPago'];
+        $productos = $data['productos'];
+        $fechaPedido = $data['FechaPedido'];
+
+        switch ($metodoPago) {
+            case 'creditCard':
+                $metodoPago = "Tarjeta de Crédito";
+                break;
+            case 'bankTransfer':
+                $metodoPago = "Transferencia Bancaria";
+                break;
+            case 'cashPayment':
+                $metodoPago = "Depósito en Redes de Cobranza";
+                break;
+        }
+
+        $listaProductos = "<ul>";
+        foreach ($productos as $producto) {
+            $nombre = htmlspecialchars($producto['Nombre']);
+            $cantidad = intval($producto['Cantidad']);
+            $listaProductos .= "<li>{$nombre} | {$cantidad} unidad" . ($cantidad > 1 ? "es" : "") . "</li>";
+        }
+        $listaProductos .= "</ul>";
+
+        $fechaString = $this->dateString($fechaPedido);
+
+        $msgAsunto = '¡Gracias por tu compra! Confirmación del Pedido #' . $idPedido;
+        $msgCuerpo = "
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                    background-color: #f6f6f6;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 30px auto;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    padding: 30px;
+                }
+                h2 {
+                    color: #15297C;
+                }
+                p {
+                    line-height: 1.6;
+                }
+                .order-summary {
+                    background-color: #f0f4f8;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                }
+                .order-summary ul {
+                    padding-left: 20px;
+                    margin: 0;
+                }
+                .order-summary li {
+                    margin-bottom: 8px;
+                }
+                .footer {
+                    font-size: 12px;
+                    color: #888;
+                    border-top: 1px solid #ddd;
+                    margin-top: 30px;
+                    padding-top: 10px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <h2>¡Gracias por tu compra, {$nombreCliente}!</h2>
+                <p>Te confirmamos que hemos recibido tu pedido <strong>#{$idPedido}</strong> realizado el <strong>{$fechaString}</strong>.</p>
+                <p>Estamos preparando todo para enviártelo lo antes posible.</p>
+
+                <div class='order-summary'>
+                    <h3>Resumen del pedido:</h3>
+                    {$listaProductos}
+                    <p><strong>Total:</strong> {$montoTotal} USD</p>
+                    <p><strong>Método de pago:</strong> {$metodoPago}</p>
+                </div>
+
+                <p>📦 Te notificaremos nuevamente cuando tu pedido esté en camino.</p>
+                <p>Si tenés alguna pregunta, podés responder este correo o visitar nuestro centro de ayuda.</p>
+
+                <p>¡Gracias por confiar en nosotros!</p>
+                <p>Saludos,<br><strong>El equipo de MNJTecno.com</strong></p>
+
+                <div class='footer'>
+                    Este mensaje es una confirmación automática. Por favor, no respondas si no es necesario.
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+
+        return $mailHelper->EnvioMail($email, $nombre, null, $msgAsunto, $msgCuerpo, true);
+    }
+
+    public function getNamesMonth(int $monthNumber): string
+    {
+        $months = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+
+        return $months[$monthNumber] ?? 'Mes invalido';
+    }
+
+    public function dateString(string $fecha): string
+    {
+        $dt = new DateTime($fecha);
+        $dia = $dt->format('j');
+        $mes = $this->getNamesMonth((int) $dt->format('n'));
+        $anio = $dt->format('Y');
+
+        return "$dia de $mes de $anio";
     }
 }
 ?>
