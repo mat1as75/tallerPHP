@@ -431,7 +431,40 @@ class UsuarioController
 
         $input = json_decode(file_get_contents("php://input"), true);
 
+        $email = trim($input["email"]);
+        $passWord = trim($input["password"]);
+        $nuevaPass = trim($input["nuevapass"]);
 
+
+        $usr = $this->buscarUsuarioporMail($email);
+
+         if (!$usr) {
+            http_response_code(401);
+            echo json_encode(["Mensaje" => "usuario no registrado"]);
+            return;
+        }
+
+        if(!password_verify($passWord,$usr['Contrasena'])){
+            http_response_code(401);
+            echo json_encode(['Mensaje'=> 'Su Password actual no coincide']);
+            return;
+        }
+
+        if ($nuevaPass == $passWord) {
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "La nueva Password y la anterior no pueden coinsidir"]);
+            return;
+        }
+
+       $bol = $this->usuario->NuevaPass($usr, $nuevaPass);
+
+        if (!$bol) {
+            http_response_code(400);
+            echo json_encode(["Mensaje"=> "Ocurrio un error al actualizar el password"]);
+        }else{
+            http_response_code(200);
+            echo json_encode(["Mensaje"=>'Password cambiada exitosamente']);
+        }
 
     }
 
