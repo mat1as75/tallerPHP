@@ -13,8 +13,8 @@ if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed
 
 //echo "HTTP_ORIGIN: " . $_SERVER['HTTP_ORIGIN'] . "\n";
 
-header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://localhost:4200");
+//header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:4200");
 //header("Access-Control-Allow-Origin: https://tallerphp.uy");
 header("Acces-Control-Allow-Headers: access");
 header("Content-Type: application/json; charset=UTF-8");
