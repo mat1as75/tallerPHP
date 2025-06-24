@@ -11,21 +11,27 @@ class Router
     {
         $path = parse_url($uri, PHP_URL_PATH);
 
-        // Request desde Deployment
-        if (str_contains($path, 'tallerPHP'))
-            $path = str_replace('/tallerPHP', '', $path);
-        
-        $clean = str_replace('/index.php', '', $path);
-        $parts = explode('/', $clean);
-        $beforePattern = '/' . $parts[1] . '/' . $parts[2];
-        $pattern = str_replace($beforePattern, '', $clean);
+        if (str_contains($path, 'tallerPHP')) {
+            $this->uri = str_replace('/php/tallerPHP/public/index.php', '', $path);
+        } elseif (str_contains($path, 'equipo2')) {
+            $this->uri = str_replace('/equipo2/backend/public/index.php', '', $path);
+        } else {
+            // fallback si no coincide nada
+            $this->uri = $path;
+        }
+        // echo "PATH: " . $path . "\n";
+        // echo "URI: " . $this->uri . "\n";
+        // $clean = str_replace('/index.php', '', $path);
+        // $parts = explode('/', $clean);
+        // $beforePattern = '/' . $parts[1] . '/' . $parts[2];
+        // $pattern = str_replace($beforePattern, '', $clean);
         //echo "Ruta: " . $path . "\n";
         //echo "Ruta limpia: " . $clean . "\n";
         //echo "Antes del patrón: " . $beforePattern . "\n";
         //echo "Pattern: " . $pattern . "\n";
 
 
-        $this->uri = $pattern;
+        //$this->uri = $pattern;
         $this->method = $method;
     }
 

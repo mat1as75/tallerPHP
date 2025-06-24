@@ -21,7 +21,6 @@ class Database
             $this->username = "hphp_equipo2";
         }
         $this->password = "AdminPass123";
-
     }
 
     public function connect()
