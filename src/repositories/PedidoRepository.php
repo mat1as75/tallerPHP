@@ -2,6 +2,7 @@
 include_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/ProductoRepository.php';
 require_once __DIR__ . '/DatosEnvioRepository.php';
+include_once __DIR__ . '/../pdf/fpdf.php';
 
 class PedidoRepository
 {
@@ -251,21 +252,9 @@ class PedidoRepository
         $nombreCliente = $data['Nombre'];
         $idPedido = $data['ID_Pedido'];
         $montoTotal = $data['Total'];
-        $metodoPago = $data['MetodoPago'];
+        $metodoPago = $this->getPaymentMethod($data['MetodoPago']);
         $productos = $data['productos'];
         $fechaPedido = $data['FechaPedido'];
-
-        switch ($metodoPago) {
-            case 'creditCard':
-                $metodoPago = "Tarjeta de Crédito";
-                break;
-            case 'bankTransfer':
-                $metodoPago = "Transferencia Bancaria";
-                break;
-            case 'cashPayment':
-                $metodoPago = "Depósito en Redes de Cobranza";
-                break;
-        }
 
         $listaProductos = "<ul>";
         foreach ($productos as $producto) {
@@ -386,6 +375,84 @@ class PedidoRepository
         $anio = $dt->format('Y');
 
         return "$dia de $mes de $anio";
+    }
+
+    public function getPaymentMethod($paymentMethod)
+    {
+        switch ($paymentMethod) {
+            case 'creditCard':
+                return "Tarjeta de Crédito";
+            case 'bankTransfer':
+                return "Transferencia Bancaria";
+            case 'cashPayment':
+                return "Depósito en Redes de Cobranza";
+        }
+    }
+
+    public function generateOrderPDFContent($data)
+    {
+        $pdf = new FPDF();
+        $pdf->AddPage();
+
+        // DIBUJA UN BORDE ALREDEDOR DE TODA LA PÁGINA (MARGEN 10px)
+        $pdf->SetLineWidth(0.5);
+        $pdf->Rect(10, 10, 190, 277); // x, y, ancho, alto
+
+        // ENCABEZADO
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, iconv("UTF-8", "ISO-8859-1//TRANSLIT", 'Factura de Pedido - MNJTecno'), 0, 1, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 6, 'www.tallerphp.uy/equipo2 | mnjtecno@tallerphp.uy', 0, 1, 'C');
+        $pdf->Ln(8);
+
+        // DATOS DEL CLIENTE Y PEDIDO
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->Cell(95, 6, 'Cliente: ' . iconv("UTF-8", "ISO-8859-1//TRANSLIT", $data['Nombre']), 0, 0);
+        $pdf->Cell(95, 6, iconv("UTF-8", "ISO-8859-1//TRANSLIT", 'Pedido N°: ') . $data['ID_Pedido'], 0, 1);
+        $pdf->Cell(95, 6, 'Email: ' . $data['Email'], 0, 0);
+        $pdf->Cell(95, 6, 'Fecha: ' . $this->dateString($data['FechaPedido']), 0, 1);
+        $pdf->Cell(95, 6, iconv("UTF-8", "ISO-8859-1//TRANSLIT", 'Método de Pago: ') . iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->getPaymentMethod($data['MetodoPago'])), 0, 1);
+        $pdf->Ln(8);
+
+        // TÍTULO DE PRODUCTOS
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(80, 6, 'Producto', 0, 0);
+        $pdf->Cell(30, 6, 'Cantidad', 0, 0, 'C');
+        $pdf->Cell(40, 6, 'Precio Unitario', 0, 0, 'R');
+        $pdf->Cell(40, 6, 'Subtotal', 0, 1, 'R');
+        $pdf->Ln(2);
+
+        // LISTA DE PRODUCTOS
+        $pdf->SetFont('Arial', '', 10);
+        $totalCalculado = 0;
+
+        foreach ($data['productos'] as $producto) {
+            $nombre = iconv("UTF-8", "ISO-8859-1//TRANSLIT", mb_strimwidth($producto['Nombre'], 0, 40, '...'));
+            $cantidad = intval($producto['Cantidad']);
+            $precio = isset($producto['Precio']) ? floatval($producto['Precio']) : 0;
+            $subtotal = $cantidad * $precio;
+            $totalCalculado += $subtotal;
+
+            $pdf->Cell(80, 6, $nombre, 0, 0);
+            $pdf->Cell(30, 6, $cantidad, 0, 0, 'C');
+            $pdf->Cell(40, 6, '$ ' . number_format($precio, 2), 0, 0, 'R');
+            $pdf->Cell(40, 6, '$ ' . number_format($subtotal, 2), 0, 1, 'R');
+        }
+
+        $pdf->Ln(5);
+
+        // TOTAL
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(150, 8, 'TOTAL:', 0, 0, 'R');
+        $pdf->Cell(40, 8, '$ ' . number_format($data['Total'], 2), 0, 1, 'R');
+
+        $pdf->Ln(12);
+
+        // FOOTER
+        $pdf->SetFont('Arial', 'I', 10);
+        $pdf->Cell(0, 6, iconv("UTF-8", "ISO-8859-1//TRANSLIT", 'Gracias por tu compra. Una vez confirmado el pago del pedido, esta factura es válida como comprobante de pago.'), 0, 1, 'C');
+
+        return $pdf->Output('S'); // Devuelve como string
     }
 }
 ?>

@@ -82,5 +82,24 @@ class PedidoController
         }
     }
 
+    public function downloadOrderPDF()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!$this->pedido->getPedidoById($data['ID_Pedido'])) {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "El pedido no existe o no se encontro."]);
+        }
+
+        // Generar PDF en memoria
+        $pdfContent = $this->pedido->generateOrderPDFContent($data);
+
+        // Configurar headers para descarga
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="pedido_' . $data['ID_Pedido'] . '.pdf"');
+        echo $pdfContent;
+    }
+
+
 }
 ?>
