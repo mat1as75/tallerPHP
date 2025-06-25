@@ -31,14 +31,13 @@ $router->add('POST', '/desactivarcuenta/{id}', [$usuarioController, 'desactivacu
 $router->add('POST', '/cerrarsesion/{id}', [$usuarioController, 'cerrarsesion']);
 $router->add('PUT', '/cambiopassdesdedetalles', [$usuarioController, 'cambiopassdesdeDetalles']);
 $router->add('PUT', '/usuarios/hash-passwords', [$usuarioController, 'hashPasswords']);
+$router->add('POST', '/enviarContacto', [$usuarioController, 'sendEmailContact']);
 
 //RUTAS USUARIO-ADMINISTRADOR
 $router->add('POST', '/buscarUsuarios', [$usuarioController, 'buscarUsuarios']);
 $router->add('POST', '/crearGestor', [$usuarioController, 'crearGestor']);
 $router->add('PUT', '/modificarGestor', [$usuarioController, 'modificarGestor']);
 $router->add('DELETE', '/eliminarGestor', [$usuarioController, 'eliminarGestor']);
-
-
 
 // RUTAS PARA PEDIDOS
 $router->add('GET', '/pedidos', [$pedidoController, 'getPedidos']);

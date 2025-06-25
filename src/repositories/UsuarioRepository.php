@@ -36,8 +36,8 @@ class UsuarioRepository
 
     public function create($email, $password, $nombre, $apellido, $rol, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte)
     {
-    $hashed = password_hash($password, PASSWORD_DEFAULT);
-    $activo = 1;
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $activo = 1;
 
 
         $stmt = $this->conn->prepare("INSERT INTO Usuario (
@@ -48,43 +48,43 @@ class UsuarioRepository
         $r = $stmt->execute();
 
 
-    
-    // Verificamos si se insertó bien el usuario
-    if (!$r) {
-        error_log("Error al insertar el usuario.");
-        //echo json_encode("Error al insertar el usuario.");
+
+        // Verificamos si se insertó bien el usuario
+        if (!$r) {
+            error_log("Error al insertar el usuario.");
+            //echo json_encode("Error al insertar el usuario.");
+            return false;
+        }
+
+        $user = $this->buscarUsuarioporMail($email);
+        if ($user && isset($user["ID"])) {
+            $id = $user["ID"];
+        }
+
+        // Según el rol, insertamos en la tabla correspondiente
+        if (strtolower($rol) === "cliente") {
+            $ok = $this->ConexionconCliente($id);
+            if ($ok) {
+
+                return true;
+            } else {
+
+                return false;
+            }
+        } else if (strtolower($rol) === "gestor") {
+            $ok = $this->ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
+            if ($ok) {
+
+                return true;
+            } else {
+
+                return false;
+            }
+
+
+        }//ACA SEGUIRIA PARA ADMINISTRADOR
+
         return false;
-    }
-
-    $user = $this->buscarUsuarioporMail($email);
-    if ($user && isset($user["ID"])) {
-        $id = $user["ID"];
-    }
-
-   // Según el rol, insertamos en la tabla correspondiente
-    if (strtolower($rol) === "cliente") {
-        $ok = $this->ConexionconCliente($id);
-        if ($ok) {
-          
-            return true;
-        } else {
-        
-            return false;
-        }
-    }else if (strtolower($rol) === "gestor"){
-        $ok = $this->ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte);
-        if ($ok) {
-          
-            return true;
-        } else {
-        
-            return false;
-        }
-        
-
-    }//ACA SEGUIRIA PARA ADMINISTRADOR
-    
-    return false;
 
     }
 
@@ -132,9 +132,10 @@ class UsuarioRepository
 
         return $success; // true si fue exitoso, false si falló
     }
-  
+
     //CONEXION GESTOR
-    public function ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte){
+    public function ConexionconGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte)
+    {
 
         $stmt = $this->conn->prepare("
             INSERT INTO Gestor (ID, P_Producto, P_Inventario, P_Pedidos, P_Validacion, P_Soporte)
@@ -155,7 +156,7 @@ class UsuarioRepository
         return $resultado;
 
     }
-  
+
 
     public function update($email, $password, $nombre, $apellido)
     {
@@ -382,14 +383,15 @@ class UsuarioRepository
             return false;
         }
     }
-      
-      
+
+
 
 
     //FUNCIONES ADMINISTRADOR-----------------------------
 
     //CREAR GESTOR
-    public function crearGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+    public function crearGestor($id, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte)
+    {
         $stmt = $this->conn->prepare("
             INSERT INTO Gestor (ID, P_Producto, P_Inventario, P_Pedidos, P_Validacion, P_Soporte)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -409,11 +411,12 @@ class UsuarioRepository
     }
 
     //MODIFICAR GESTOR
-    public function modificarGestor($Email, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte) {
+    public function modificarGestor($Email, $p_producto, $p_inventario, $p_pedidos, $p_validacion, $p_soporte)
+    {
 
         $user = $this->buscarUsuarioporMail($Email);
         if ($user && isset($user["ID"])) {
-        $id = $user["ID"];
+            $id = $user["ID"];
         }
 
         $stmt = $this->conn->prepare("
@@ -438,9 +441,10 @@ class UsuarioRepository
 
     //ELIMINAR DE GESTOR/QUITAR PERMISOS A USUARIO COMO GESTOR NO BORRARLO
 
-    public function eliminarGestor($id) {
+    public function eliminarGestor($id)
+    {
         $stmt = $this->conn->prepare("DELETE FROM Gestor WHERE ID = ?");
-        
+
         if (!$stmt) {
             throw new Exception("Error al preparar la consulta: " . $this->conn->error);
         }
@@ -456,7 +460,8 @@ class UsuarioRepository
     }
 
     //BUSCAR USUARIOS CON FILTROS FUNCION ADMIN
-    public function buscarUsuarios($filtros) {
+    public function buscarUsuarios($filtros)
+    {
         $query = "SELECT * FROM Usuario WHERE 1=1";
         $tipos = "";
         $params = [];
@@ -529,6 +534,43 @@ class UsuarioRepository
             }
         }
         return true;
+    }
+
+    public function sendEmailContact($data)
+    {
+        $mailHelper = new MailService();
+        $emailDestino = 'mnjtecno@tallerphp.uy';
+        $nombreCompleto = $data['Nombre'];
+        $correo = $data['Email'];
+        $asunto = $data['Asunto'];
+        $mensaje = $data['Mensaje'];
+
+        $msgAsunto = $asunto;
+        $msgCuerpo = "
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            .contenido { padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
+            .info { margin-bottom: 20px; }
+            .mensaje { white-space: pre-line; }
+          </style>
+        </head>
+        <body>
+          <div class='contenido'>
+            <h3>Nuevo mensaje de contacto</h3>
+            <div class='info'>
+              <p><strong>Nombre:</strong> {$nombreCompleto}</p>
+              <p><strong>Correo:</strong> {$correo}</p>
+            </div>
+            <div class='mensaje'>
+              <p>{$mensaje}</p>
+            </div>
+          </div>
+        </body>
+        </html>";
+
+        return $mailHelper->EnvioMail($emailDestino, $nombreCompleto, null, $msgAsunto, $msgCuerpo, true);
     }
 
 }
