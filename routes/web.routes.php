@@ -47,6 +47,7 @@ $router->add('POST', '/pedidos', [$pedidoController, 'create']);
 $router->add('PATCH', '/pedidos/{id}', [$pedidoController, 'updateStatus']);
 $router->add('DELETE', '/pedidos/{id}', [$pedidoController, 'cancel']);
 $router->add('POST', '/enviarMail', [$pedidoController, 'sendEmailConfirmation']);
+$router->add('POST', '/pedidos/descargarPDF', [$pedidoController, 'downloadOrderPDF']);
 
 // RUTAS PARA PRODUCTOS PEDIDOS
 $router->add('GET', '/productos/pedido/{id_pedido}', [$productoPedidoController, 'getProductoPedidoByIdPedido']);
