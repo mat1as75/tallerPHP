@@ -255,7 +255,7 @@ CREATE TABLE `Pedido` (
   `ID_Cliente` int(11) DEFAULT NULL,
   `ID_DatosEnvio` int(11) DEFAULT NULL,
   `Total` decimal(10,2) DEFAULT NULL,
-  `Estado` enum('pendiente','procesado','enviado','entregado','cancelado') DEFAULT NULL,
+  `Estado` enum('pendiente','entregado','cancelado') DEFAULT NULL,
   `CreatedAt` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`ID`),
   KEY `ID_Cliente` (`ID_Cliente`),
