@@ -25,14 +25,15 @@ class ProductoController
             ])
         )
             return;
-
+        $nombreArchivo = $data['URL_Imagen'];
+        $rutaImagenCompleta = 'http://localhost/PHP/tallerPHP/assets/images/' . $nombreArchivo;
         $resultado = $this->producto->create(
             $data['Nombre'],
             $data['Descripcion'],
             $data['Precio'],
             $data['Stock'],
             $data['ID_Marca'],
-            $data['URL_Imagen'],
+            $rutaImagenCompleta,
             $data['ID_Categoria']
         );
         if (!$resultado) {
@@ -82,20 +83,36 @@ class ProductoController
         echo json_encode($resultado);
     }
 
-    public function delete($id)
-    {
-        if (!$this->validarId($id))
-            return;
+public function delete($id)
+{
+    if (!$this->validarId($id)) return;
+    $producto = $this->producto->getProductoById($id);
 
-        $resultado = $this->producto->delete($id);
-        if (!$resultado) {
-            http_response_code(500);
-            echo json_encode(["error" => "Error al eliminar el producto"]);
-            return;
-        }
-
-        echo json_encode(["mensaje" => "Producto eliminado correctamente"]);
+    if (!$producto) {
+        http_response_code(404);
+        echo json_encode(["error" => "Producto no encontrado"]);
+        return;
     }
+
+    $urlImagen = $producto['URL_Imagen'] ?? '';
+    if ($urlImagen && str_starts_with($urlImagen, 'http')) {
+        $nombreArchivo = basename($urlImagen);
+        $rutaImagen = __DIR__ . '/../../assets/images/' . $nombreArchivo;
+        if (file_exists($rutaImagen)) {
+            unlink($rutaImagen); // Intentar borrar la imagen física
+        }
+    }
+
+    $resultado = $this->producto->delete($id);
+    if (!$resultado) {
+        http_response_code(500);
+        echo json_encode(["error" => "Error al eliminar el producto"]);
+        return;
+    }
+
+    echo json_encode(["mensaje" => "Producto e imagen (si existía) eliminados correctamente"]);
+}
+
 
     public function getProductos()
     {
@@ -180,6 +197,33 @@ class ProductoController
         }
         return true;
     }
+
+public function uploadImage()
+{
+// Verifica que se haya enviado un archivo
+if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+    // Recupera la información del archivo subido
+    $tempName = $_FILES['imagen']['tmp_name'];  // Ruta temporal del archivo
+    $newFileName = uniqid() . '_' . $_FILES['imagen']['name'];  // Nombre único para el archivo
+
+    // Directorio de destino para guardar la imagen
+    $uploadDir = '/opt/lampp/htdocs/PHP/tallerPHP/assets/images/';
+    $uploadFile = $uploadDir . $newFileName;
+
+    // Mueve el archivo a la carpeta de destino
+    if (move_uploaded_file($tempName, $uploadFile)) {
+        echo json_encode(['success' => 'Imagen subida con éxito', 'file' => $newFileName]);
+    } else {
+        echo json_encode(['error' => 'Error al mover el archivo']);
+    }
+} else {
+    echo json_encode(['error' => 'No se recibió archivo o hubo un error']);
+}
+
+
+}
+
+
 
 }
 
