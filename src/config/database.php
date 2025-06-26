@@ -34,10 +34,13 @@ class Database
                 $this->password,
                 $this->db_name
             );
-            mysqli_select_db(
-                $this->conn,
-                $this->db_name
-            );
+
+            if (!$this->conn)
+                throw new Exception(mysqli_connect_error());
+
+            if (!mysqli_set_charset($this->conn, "utf8mb4"))
+                throw new Exception("Error configurando charset utf8mb4: " . mysqli_error($this->conn));
+
         } catch (Exception $e) {
             echo json_encode(["error" => "Conexion fallida: " . $e->getMessage()]);
             exit;

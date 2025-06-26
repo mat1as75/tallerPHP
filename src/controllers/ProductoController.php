@@ -105,6 +105,7 @@ class ProductoController
 
     public function getProductoById($id)
     {
+        header('Content-Type: application/json');
         if (!$this->validarId($id))
             return;
 

@@ -4,19 +4,18 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Router\Router;
 
-$allowedOrigins = ['https://tallerphp.uy', 'http://localhost:4200'];
+//$allowedOrigins = ['https://tallerphp.uy', 'http://localhost:4200'];
 
-if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
-    header('Access-Control-Allow-Credentials: true');
-}
+// if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowedOrigins)) {
+//     header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+//     header('Access-Control-Allow-Credentials: true');
+// }
 
-//echo "HTTP_ORIGIN: " . $_SERVER['HTTP_ORIGIN'] . "\n";
+// if ($_SERVER['HTTP_HOST'] === 'localhost')
+//     header("Access-Control-Allow-Origin: http://localhost:4200");
 
-//header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Origin: http://localhost:4200");
-//header("Access-Control-Allow-Origin: https://tallerphp.uy");
-header("Acces-Control-Allow-Headers: access");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: access");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST, GET, PUT, PATCH, DELETE");
 header("Access-Control-Max-Age: 3600");
