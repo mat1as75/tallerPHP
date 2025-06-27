@@ -11,21 +11,32 @@ class ProductoRepository
         $this->conn = $db->connect();
     }
 
-    public function create($nombre, $descripcion, $precio, $stock, $id_marca, $url_imagen, $id_categoria)
-    {
-        $sql = "INSERT INTO Producto (
-            nombre, descripcion, precio, stock, id_marca, url_imagen, id_categoria
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssdissi", $nombre, $descripcion, $precio, $stock, $id_marca, $url_imagen, $id_categoria);
+    public function create($nombre, $descripcion, $precio, $stock, $id_marca, $url_imagen, $id_categoria){
+        try {
+            $sql = "INSERT INTO Producto (
+                nombre, descripcion, precio, stock, id_marca, url_imagen, id_categoria
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = $this->conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Error al preparar la consulta: " . $this->conn->error);
+            }
 
-        if ($stmt->execute()) {
+            $stmt->bind_param("ssdissi", $nombre, $descripcion, $precio, $stock, $id_marca, $url_imagen, $id_categoria);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+
             return [
                 'mensaje' => 'Producto creado',
                 'id' => $this->conn->insert_id
             ];
+        } catch (Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+            return false;
         }
-        return false;
     }
 
     public function update($id, $nombre, $descripcion, $precio, $stock, $id_marca, $url_imagen, $id_categoria)
