@@ -344,7 +344,102 @@ class PedidoRepository
         </html>
         ";
 
-        return $mailHelper->EnvioMail($email, $nombre, null, $msgAsunto, $msgCuerpo, true);
+        return $mailHelper->EnvioMail($email, $nombreCliente, null, $msgAsunto, $msgCuerpo, true);
+    }
+
+    public function sendEmailPaymentConfirmation($data)
+    {
+        $mailHelper = new MailService();
+
+        $email = $data['Email'];
+        $nombreCliente = $data['Nombre'];
+        $idPedido = $data['ID_Pedido'];
+        $codigoSeguimiento = 'ABC123456789UY';
+
+        $msgAsunto = '¡Tu pedido ' . $idPedido . ' ha sido confirmado y está en camino!';
+        $msgCuerpo = "
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                    background-color: #f6f6f6;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 30px auto;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    padding: 30px;
+                }
+                h2 {
+                    color: #15297C;
+                }
+                p {
+                    line-height: 1.6;
+                }
+                .order-summary {
+                    background-color: #f0f4f8;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                }
+                .order-summary ul {
+                    padding-left: 20px;
+                    margin: 0;
+                }
+                .order-summary li {
+                    margin-bottom: 8px;
+                }
+                .footer {
+                    font-size: 12px;
+                    color: #888;
+                    border-top: 1px solid #ddd;
+                    margin-top: 30px;
+                    padding-top: 10px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <h2>¡Gracias por tu compra en <strong>Tu Tienda</strong>!</h2>
+                <p>Hola <strong>' . htmlspecialchars($nombreCliente) . '</strong>,</p>
+                <p>Te informamos que <strong>hemos recibido el pago de tu pedido</strong> y ya está siendo procesado para su envío.</p>
+
+                <div class='order-summary'>
+                <ul>
+                    <li><strong>Estado del pedido:</strong> Pagado y en preparación</li>
+                    <li><strong>Transportista:</strong> DAC Uruguay</li>
+                    <li><strong>Código de seguimiento:</strong> <code>' . htmlspecialchars($codigoSeguimiento) . '</code></li>
+                </ul>
+                </div>
+
+                <p>Puedes rastrear tu envío desde el sitio web de DAC:<br>
+                <a href='https://seguimiento.dac.com.uy/' target='_blank'>https://seguimiento.dac.com.uy/</a>
+                </p>
+
+                <p>En breve, el pedido será entregado al servicio de mensajería y recibirás una actualización cuando esté en camino.</p>
+                <p>Si tenés alguna consulta, no dudes en responder a este correo.</p>
+
+                <p>¡Gracias por confiar en nosotros!<br>
+                El equipo de <strong>Tu Tienda</strong></p>
+
+                <div class='footer'>
+                Este mensaje fue enviado automáticamente. Por favor, no lo respondas directamente si no es necesario.
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+
+        return $mailHelper->EnvioMail($email, $nombreCliente, null, $msgAsunto, $msgCuerpo, true);
     }
 
     public function getNamesMonth(int $monthNumber): string

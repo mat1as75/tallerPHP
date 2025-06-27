@@ -82,6 +82,28 @@ class PedidoController
         }
     }
 
+    public function sendEmailPaymentConfirmation()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!$this->pedido->getPedidoById($data['ID_Pedido'])) {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "El pedido no existe o no se encontro."]);
+        }
+
+        try {
+            $sentEmail = $this->pedido->sendEmailPaymentConfirmation($data);
+            if (!$sentEmail) {
+                http_response_code(400);
+                echo json_encode(["error" => "Error al enviar el corre."]);
+            }
+
+            echo json_encode(["mensaje" => "Correo enviado exitosamente."]);
+        } catch (Exception $e) {
+            return json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
     public function downloadOrderPDF()
     {
         $data = json_decode(file_get_contents("php://input"), true);

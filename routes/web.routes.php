@@ -46,7 +46,8 @@ $router->add('GET', '/pedidos/cliente/{id}', [$pedidoController, 'getPedidoByCli
 $router->add('POST', '/pedidos', [$pedidoController, 'create']);
 $router->add('PATCH', '/pedidos/{id}', [$pedidoController, 'updateStatus']);
 $router->add('DELETE', '/pedidos/{id}', [$pedidoController, 'cancel']);
-$router->add('POST', '/enviarMail', [$pedidoController, 'sendEmailConfirmation']);
+$router->add('POST', '/pedidos/enviarConfirmacionEmail', [$pedidoController, 'sendEmailConfirmation']);
+$router->add('POST', '/pedidos/enviarConfirmacionPagoEmail', [$pedidoController, 'sendEmailPaymentConfirmation']);
 $router->add('POST', '/pedidos/descargarPDF', [$pedidoController, 'downloadOrderPDF']);
 
 // RUTAS PARA PRODUCTOS PEDIDOS
