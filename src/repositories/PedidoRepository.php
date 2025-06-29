@@ -26,7 +26,13 @@ class PedidoRepository
     // Obtener todos los pedidos
     public function getPedidos()
     {
-        $sql = "SELECT * FROM Pedido";
+        $sql = "
+            SELECT 
+                p.*, 
+                CONCAT(u.Nombre, ' ', u.Apellido) AS Nombre_Cliente
+            FROM Pedido p
+            INNER JOIN Usuario u ON p.ID_Cliente = u.ID
+        ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
