@@ -10,10 +10,10 @@ class DatosEnvioController
         $this->datosEnvio = new DatosEnvioRepository();
     }
 
-    // public function getDatosEnvio()
-    // {
-    //     echo json_encode($this->datosEnvio->getDatosEnvio());
-    // }
+    public function getDatosEnvio()
+    {
+        echo json_encode($this->datosEnvio->getDatosEnvio());
+    }
 
     public function getDatosEnvioById($id)
     {

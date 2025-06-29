@@ -11,21 +11,29 @@ class DatosEnvioRepository
         $this->conn = $db->connect();
     }
 
-    // public function getDatosEnvio()
-    // {
-    //     $query = "SELECT * FROM datos_envio";
-    //     return $this->db->query($query);
-    // }
+    public function getDatosEnvio()
+    {
+        $sql = "SELECT * FROM DatosEnvio";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $datosEnvio = [];
+        while ($row = $result->fetch_assoc()) {
+            $datosEnvio[] = $row;
+        }
+        return $datosEnvio;
+    }
 
     public function getDatosEnvioById($id)
     {
-        
-        $stmt = $this->conn->prepare("SELECT * FROM DatosEnvio WHERE ID = ?");
-        $stmt->bind_param("i", $id);
+
+        $sql = "SELECT * FROM DatosEnvio WHERE ID = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        return $result->fetch_assoc();
 
+        return $result->fetch_assoc();
     }
 
     public function create($telefono, $direccion, $departamento, $ciudad)

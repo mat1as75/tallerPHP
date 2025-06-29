@@ -54,6 +54,8 @@ $router->add('POST', '/pedidos/descargarPDF', [$pedidoController, 'downloadOrder
 $router->add('GET', '/productos/pedido/{id_pedido}', [$productoPedidoController, 'getProductoPedidoByIdPedido']);
 
 // RUTAS PARA DATOS DE ENVIO
+$router->add('GET', '/pedido/datosenvio', [$datosEnvioController, 'getDatosEnvio']);
+$router->add('GET', '/pedido/datosenvio/{id}', [$datosEnvioController, 'getDatosEnvioById']);
 $router->add('POST', '/pedido/datosenvio', [$datosEnvioController, 'create']);
 $router->add('GET', '/pedido/datosenvio/{id}', [$datosEnvioController, 'getDatosEnvioById']);
 
