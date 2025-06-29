@@ -55,6 +55,7 @@ $router->add('GET', '/productos/pedido/{id_pedido}', [$productoPedidoController,
 
 // RUTAS PARA DATOS DE ENVIO
 $router->add('POST', '/pedido/datosenvio', [$datosEnvioController, 'create']);
+$router->add('GET', '/pedido/datosenvio/{id}', [$datosEnvioController, 'getDatosEnvioById']);
 
 // RUTAS PARA MARCAS
 $router->add('GET', '/marcas', [$marcaController, 'getMarcas']);

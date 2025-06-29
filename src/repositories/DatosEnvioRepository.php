@@ -17,11 +17,16 @@ class DatosEnvioRepository
     //     return $this->db->query($query);
     // }
 
-    // public function getDatosEnvioById($id)
-    // {
-    //     $query = "SELECT * FROM datos_envio WHERE ID_DatosEnvio = :id";
-    //     return $this->db->query($query, ['id' => $id]);
-    // }
+    public function getDatosEnvioById($id)
+    {
+        
+        $stmt = $this->conn->prepare("SELECT * FROM DatosEnvio WHERE ID = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+
+    }
 
     public function create($telefono, $direccion, $departamento, $ciudad)
     {
