@@ -358,11 +358,11 @@ class PedidoRepository
         $mailHelper = new MailService();
 
         $email = $data['Email'];
-        $nombreCliente = $data['Nombre'];
+        $nombreCliente = htmlspecialchars($data['Nombre']);
         $idPedido = $data['ID_Pedido'];
         $codigoSeguimiento = 'ABC123456789UY';
 
-        $msgAsunto = '¡Tu pedido ' . $idPedido . ' ha sido confirmado y está en camino!';
+        $msgAsunto = '¡Tu pedido #' . $idPedido . ' ha sido confirmado y está en camino!';
         $msgCuerpo = "
         <html>
         <head>
@@ -415,27 +415,27 @@ class PedidoRepository
         </head>
         <body>
             <div class='container'>
-                <h2>¡Gracias por tu compra en <strong>Tu Tienda</strong>!</h2>
-                <p>Hola <strong>' . htmlspecialchars($nombreCliente) . '</strong>,</p>
+                <h2>¡Gracias por tu compra en <strong>MNJ Tecno</strong>!</h2>
+                <p>Hola <strong>$nombreCliente</strong>,</p>
                 <p>Te informamos que <strong>hemos recibido el pago de tu pedido</strong> y ya está siendo procesado para su envío.</p>
 
                 <div class='order-summary'>
                 <ul>
                     <li><strong>Estado del pedido:</strong> Pagado y en preparación</li>
                     <li><strong>Transportista:</strong> DAC Uruguay</li>
-                    <li><strong>Código de seguimiento:</strong> <code>' . htmlspecialchars($codigoSeguimiento) . '</code></li>
+                    <li><strong>Código de seguimiento:</strong> <code>$codigoSeguimiento</code></li>
                 </ul>
                 </div>
 
                 <p>Puedes rastrear tu envío desde el sitio web de DAC:<br>
-                <a href='https://seguimiento.dac.com.uy/' target='_blank'>https://seguimiento.dac.com.uy/</a>
+                <a href='https://www.dac.com.uy/envios/rastrear' target='_blank'>https://www.dac.com.uy/envios/rastrear</a>
                 </p>
 
-                <p>En breve, el pedido será entregado al servicio de mensajería y recibirás una actualización cuando esté en camino.</p>
-                <p>Si tenés alguna consulta, no dudes en responder a este correo.</p>
+                <p>En breve, el pedido será entregado al servicio de cadetería, </p>
+                <p>si tenés alguna consulta, no dudes en responder a este correo.</p>
 
                 <p>¡Gracias por confiar en nosotros!<br>
-                El equipo de <strong>Tu Tienda</strong></p>
+                El equipo de <strong>MNJ Tecno</strong></p>
 
                 <div class='footer'>
                 Este mensaje fue enviado automáticamente. Por favor, no lo respondas directamente si no es necesario.
